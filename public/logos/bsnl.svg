@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <rect width="200" height="80" fill="#006837" rx="6"/>
+  <path d="M20 55 Q40 10 60 55 Q40 35 20 55Z" fill="#f5a623"/>
+  <path d="M30 55 Q50 15 70 55 Q50 38 30 55Z" fill="white" opacity="0.3"/>
+  <text x="82" y="34" font-family="Arial" font-size="15" font-weight="bold" fill="white">BSNL</text>
+  <text x="82" y="52" font-family="Arial" font-size="7" fill="#a8e6c0">Bharat Sanchar Nigam</text>
+  <text x="82" y="65" font-family="Arial" font-size="7" fill="#a8e6c0">Limited</text>
+</svg>

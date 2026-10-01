@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <rect width="200" height="80" fill="#1a3a6b" rx="6"/>
+  <circle cx="40" cy="40" r="28" fill="none" stroke="#f5a623" stroke-width="3"/>
+  <circle cx="40" cy="40" r="18" fill="none" stroke="#f5a623" stroke-width="1.5"/>
+  <line x1="40" y1="12" x2="40" y2="68" stroke="#f5a623" stroke-width="1.5"/>
+  <line x1="12" y1="40" x2="68" y2="40" stroke="#f5a623" stroke-width="1.5"/>
+  <circle cx="40" cy="40" r="5" fill="#f5a623"/>
+  <text x="80" y="30" font-family="Arial" font-size="14" font-weight="bold" fill="white">DRDO</text>
+  <text x="80" y="50" font-family="Arial" font-size="7" fill="#f5a623">Defence Research &amp;</text>
+  <text x="80" y="62" font-family="Arial" font-size="7" fill="#f5a623">Development Organisation</text>
+</svg>

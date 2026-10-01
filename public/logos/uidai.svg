@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <rect width="200" height="80" fill="#154360" rx="6"/>
+  <circle cx="38" cy="40" r="20" fill="none" stroke="#f5a623" stroke-width="2.5"/>
+  <path d="M38 28 Q46 34 46 40 Q46 50 38 52 Q30 50 30 40 Q30 34 38 28Z" fill="#f5a623" opacity="0.8"/>
+  <circle cx="38" cy="36" r="5" fill="white"/>
+  <text x="72" y="32" font-family="Arial" font-size="12" font-weight="bold" fill="white">UIDAI</text>
+  <text x="72" y="50" font-family="Arial" font-size="7" fill="#f5a623">Unique Identification</text>
+  <text x="72" y="63" font-family="Arial" font-size="7" fill="#f5a623">Authority of India</text>
+</svg>
