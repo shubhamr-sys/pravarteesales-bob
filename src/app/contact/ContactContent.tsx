@@ -13,14 +13,14 @@ const contactInfo = [
   {
     icon: Phone,
     label: "Call Us",
-    value: "+91 XXXXX XXXXX",
-    href: "tel:+91",
+    value: "011 403 66 978",
+    href: "tel:01140366978",
   },
   {
     icon: MapPin,
     label: "Location",
-    value: "India",
-    href: "#",
+    value: "222, Tower C Ithum, Sector-62, Noida, UP-201309",
+    href: "https://www.google.com/maps/place/iThum-Noida/@28.6255104,77.3707271,17.75z/data=!4m6!3m5!1s0x390ce5336becb191:0xa89caf8bfb9e7068!8m2!3d28.6270614!4d77.3723967!16s%2Fg%2F11j118h_hh?entry=ttu&g_ep=EgoyMDI2MDkzMC4wIKXMDSoASAFQAw%3D%3D",
   },
 ];
 

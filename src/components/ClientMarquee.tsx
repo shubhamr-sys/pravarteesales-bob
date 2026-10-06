@@ -2,19 +2,43 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 
+import aiia from "@/assets/clients/all-india-institute-of-ayurveda.webp";
+import bro from "@/assets/clients/border-road-orgainization.webp";
+import dabur from "@/assets/clients/dabur.webp";
+import drdo from "@/assets/clients/defence-research-devlopment-orgainization.webp";
+import gulf from "@/assets/clients/gulf.webp";
+import iaf from "@/assets/clients/Indian-air-force.webp";
+import army from "@/assets/clients/indian-army.webp";
+import icmr from "@/assets/clients/indian-council-medical-research.webp";
+import iitd from "@/assets/clients/indian-institute-of-technology-delhi.webp";
+import mha from "@/assets/clients/ministry-of-home-affairs.webp";
+import nia from "@/assets/clients/national-investigation-agency.webp";
+import pb from "@/assets/clients/policy-bazaar.webp";
+import sai from "@/assets/clients/sports-authority-india.webp";
+import du from "@/assets/clients/university-of-delhi.webp";
+import yeida from "@/assets/clients/yamuna-expressway-industrial-development-authority.webp";
+
 const clients = [
-  { name: "Ministry of Defence", logo: "/logos/mod.svg", abbr: "MoD" },
-  { name: "DRDO", logo: "/logos/drdo.svg", abbr: "DRDO" },
-  { name: "National Informatics Centre", logo: "/logos/nic.svg", abbr: "NIC" },
-  { name: "BSNL", logo: "/logos/bsnl.svg", abbr: "BSNL" },
-  { name: "Indian Railways", logo: "/logos/railway.svg", abbr: "IR" },
-  { name: "ISRO", logo: "/logos/isro.svg", abbr: "ISRO" },
-  { name: "Election Commission of India", logo: "/logos/eci.svg", abbr: "ECI" },
-  { name: "UIDAI", logo: "/logos/uidai.svg", abbr: "UIDAI" },
+  { name: "All India Institute of Ayurveda", logo: aiia },
+  { name: "Border Roads Organisation", logo: bro },
+  { name: "Dabur", logo: dabur },
+  { name: "Defence Research & Development Organisation", logo: drdo },
+  { name: "Gulf", logo: gulf },
+  { name: "Indian Air Force", logo: iaf },
+  { name: "Indian Army", logo: army },
+  { name: "Indian Council of Medical Research", logo: icmr },
+  { name: "IIT Delhi", logo: iitd },
+  { name: "Ministry of Home Affairs", logo: mha },
+  { name: "National Investigation Agency", logo: nia },
+  { name: "PolicyBazaar", logo: pb },
+  { name: "Sports Authority of India", logo: sai },
+  { name: "University of Delhi", logo: du },
+  { name: "Yamuna Expressway Industrial Development Authority", logo: yeida },
 ];
 
-// Duplicate for seamless infinite loop
-const allClients = [...clients, ...clients];
+// Split into two rows and duplicate each for seamless infinite loop
+const row1 = [...clients.slice(0, 8), ...clients.slice(0, 8)];
+const row2 = [...clients.slice(7), ...clients.slice(7)];
 
 export default function ClientMarquee() {
   return (
@@ -37,19 +61,16 @@ export default function ClientMarquee() {
           animate={{ x: ["0%", "-50%"] }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
         >
-          {allClients.map((client, i) => (
+          {row1.map((client, i) => (
             <div
               key={i}
-              className="shrink-0 w-[200px] h-[80px] rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md hover:border-[#0057FF]/20 transition-all duration-300"
+              className="shrink-0 w-[270px] h-[120px] bg-white rounded-xl overflow-hidden transition-all duration-300 flex items-center justify-center p-4"
               title={client.name}
             >
               <Image
                 src={client.logo}
                 alt={client.name}
-                width={200}
-                height={80}
-                className="w-full h-full object-cover"
-                unoptimized
+                className="max-w-full max-h-full object-contain"
               />
             </div>
           ))}
@@ -63,19 +84,16 @@ export default function ClientMarquee() {
           animate={{ x: ["-50%", "0%"] }}
           transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
         >
-          {allClients.map((client, i) => (
+          {row2.map((client, i) => (
             <div
               key={i}
-              className="shrink-0 w-[200px] h-[80px] rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md hover:border-[#0057FF]/20 transition-all duration-300"
+              className="shrink-0 w-[270px] h-[120px] bg-white rounded-xl overflow-hidden transition-all duration-300 flex items-center justify-center p-4"
               title={client.name}
             >
               <Image
                 src={client.logo}
                 alt={client.name}
-                width={200}
-                height={80}
-                className="w-full h-full object-cover"
-                unoptimized
+                className="max-w-full max-h-full object-contain"
               />
             </div>
           ))}

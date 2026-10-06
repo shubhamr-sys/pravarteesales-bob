@@ -77,7 +77,7 @@ export default function Hero() {
               </Link>
             </motion.div>
 
-            {/* Quick stats */}
+            {/* Quick stats
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -94,7 +94,7 @@ export default function Hero() {
                   <div className="text-white/40 text-xs mt-0.5 uppercase tracking-wider">{s.l}</div>
                 </div>
               ))}
-            </motion.div>
+            </motion.div> */}
           </div>
 
           {/* Illustration */}

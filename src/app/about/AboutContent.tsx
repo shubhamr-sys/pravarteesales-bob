@@ -1,6 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
 import { Target, Eye, Award, Users, Quote } from "lucide-react";
+import Image from "next/image";
+import directorImage from "@/assets/Director's Image.png";
 
 const values = [
   {
@@ -31,80 +33,37 @@ const values = [
 
 const milestones = [
   {
-    year: "2014",
+    year: "2017",
     title: "Founded",
     description:
       "Pravartee Sales established with a vision to deliver enterprise IT infrastructure to government institutions in India.",
   },
   {
-    year: "2016",
-    title: "First Major Govt. Contract",
-    description:
-      "Secured our first large-scale government network deployment, connecting 10+ district offices across a state.",
-  },
-  {
     year: "2018",
-    title: "Data Center Practice",
+    title: "Strong Market Entry",
     description:
-      "Launched a dedicated Data Center design & build vertical, completing our first Tier III-equivalent government data center.",
+      "Successfully established the company with a strong initial focus on the sale of Electronics goods and IT hardware, quickly building a reputation for quality and reliability in the market.",
   },
   {
-    year: "2020",
-    title: "Cybersecurity SOC",
+    year: "2021",
+    title: "Full-Service System Integrator",
     description:
-      "Established a Security Operations Center (SOC) capability, enabling 24x7 monitoring for government clients.",
-  },
-  {
-    year: "2022",
-    title: "AI & Digital Workspace",
-    description:
-      "Expanded into Artificial Intelligence and Digital Workspace solutions, delivering AI-powered surveillance and VDI platforms.",
+      "Transitioned from a hardware vendor to a full-service system integrator. Successfully designed and deployed our first major integrated IT infrastructure project for a key client.",
   },
   {
     year: "2024",
-    title: "50+ Clients & 100+ Projects",
+    title: "Strategic Technology Partnerships",
     description:
-      "Reached a landmark — over 50 government clients served and 100+ projects successfully delivered across India.",
+      "Forged strategic partnerships with leading technology manufacturers to broaden our solutions portfolio, introducing advanced automation and cloud integration services to our clients.",
+  },
+  {
+    year: "2025",
+    title: "US $1 Million Revenue & AI",
+    description:
+      "Expanded our client base by 50%, crossed US $1 Million in revenue and started building AI models for the use case of defence and government agencies.",
   },
 ];
 
-// Director illustration SVG inline
-function DirectorIllustration() {
-  return (
-    <svg viewBox="0 0 280 320" xmlns="http://www.w3.org/2000/svg" className="w-full h-full" aria-hidden="true">
-      {/* Background circle */}
-      <circle cx="140" cy="140" r="130" fill="#0d2a5e" opacity="0.5"/>
-      <circle cx="140" cy="140" r="110" fill="#0a1f44"/>
-      {/* Decorative ring */}
-      <circle cx="140" cy="140" r="125" fill="none" stroke="#0057FF" strokeWidth="1.5" strokeDasharray="8,6" opacity="0.4"/>
-      {/* Person silhouette - head */}
-      <circle cx="140" cy="95" r="38" fill="#1a3a6b"/>
-      <circle cx="140" cy="95" r="32" fill="#1e4080"/>
-      {/* Face details */}
-      <circle cx="128" cy="90" r="4" fill="#0057FF" opacity="0.6"/>
-      <circle cx="152" cy="90" r="4" fill="#0057FF" opacity="0.6"/>
-      <path d="M128 108 Q140 118 152 108" fill="none" stroke="#0057FF" strokeWidth="2" strokeLinecap="round"/>
-      {/* Body / suit */}
-      <path d="M80 180 Q80 155 140 150 Q200 155 200 180 L210 270 L70 270 Z" fill="#1a3a6b"/>
-      <path d="M140 150 L125 175 L140 195 L155 175 Z" fill="#0057FF" opacity="0.3"/>
-      {/* Tie */}
-      <path d="M135 155 L130 180 L140 195 L150 180 L145 155 Z" fill="#f5a623" opacity="0.8"/>
-      {/* Collar */}
-      <path d="M120 152 L140 165 L160 152" fill="none" stroke="white" strokeWidth="1.5" opacity="0.5"/>
-      {/* Shoulders */}
-      <ellipse cx="95" cy="175" rx="20" ry="12" fill="#1a3a6b"/>
-      <ellipse cx="185" cy="175" rx="20" ry="12" fill="#1a3a6b"/>
-      {/* Badge / medal */}
-      <circle cx="105" cy="195" r="10" fill="#f5a623" opacity="0.7"/>
-      <text x="105" y="199" textAnchor="middle" fontSize="8" fill="white" fontWeight="bold">IT</text>
-      {/* Bottom decorative line */}
-      <line x1="70" y1="270" x2="210" y2="270" stroke="#0057FF" strokeWidth="1.5" opacity="0.5"/>
-      {/* Name plate */}
-      <rect x="80" y="278" width="120" height="28" rx="4" fill="#0057FF" opacity="0.2" stroke="#0057FF" strokeWidth="1"/>
-      <text x="140" y="296" textAnchor="middle" fontSize="9" fill="#60a5fa" fontWeight="bold">DIRECTOR</text>
-    </svg>
-  );
-}
 
 export default function AboutContent() {
   return (
@@ -161,7 +120,7 @@ export default function AboutContent() {
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="grid grid-cols-2 gap-5">
               {[
-                { value: "10+", label: "Years of Experience", color: "#0057FF" },
+                { value: "9+", label: "Years of Experience", color: "#0057FF" },
                 { value: "50+", label: "Government Clients", color: "#0057FF" },
                 { value: "100+", label: "Projects Delivered", color: "#0057FF" },
                 { value: "7", label: "IT Domains", color: "#F5A623" },
@@ -202,7 +161,11 @@ export default function AboutContent() {
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 className="w-56 h-72 rounded-3xl overflow-hidden border-2 border-[#0057FF]/30 shadow-xl shadow-blue-900/10"
               >
-                <DirectorIllustration />
+                <Image
+                  src={directorImage}
+                  alt="Director, Pravartee Sales"
+                  className="w-full h-full object-cover object-top"
+                />
               </motion.div>
               <div className="mt-5 text-center">
                 <div className="font-bold text-[#0A1F44] text-lg font-[var(--font-plus-jakarta)]">Director</div>

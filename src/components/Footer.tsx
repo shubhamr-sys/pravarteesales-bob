@@ -86,7 +86,14 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-white/60 text-sm">
                 <MapPin size={16} className="mt-0.5 shrink-0 text-[#0057FF]" />
-                <span>India</span>
+                <a
+                  href="https://www.google.com/maps/place/iThum-Noida/@28.6255104,77.3707271,17.75z/data=!4m6!3m5!1s0x390ce5336becb191:0xa89caf8bfb9e7068!8m2!3d28.6270614!4d77.3723967!16s%2Fg%2F11j118h_hh?entry=ttu&g_ep=EgoyMDI2MDkzMC4wIKXMDSoASAFQAw%3D%3D"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  222, Tower C Ithum, Sector-62,<br />Noida, UP-201309
+                </a>
               </li>
               <li className="flex items-center gap-3 text-white/60 text-sm">
                 <Mail size={16} className="shrink-0 text-[#0057FF]" />
@@ -99,8 +106,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3 text-white/60 text-sm">
                 <Phone size={16} className="shrink-0 text-[#0057FF]" />
-                <a href="tel:+91" className="hover:text-white transition-colors">
-                  +91 XXXXX XXXXX
+                <a href="tel:01140366978" className="hover:text-white transition-colors">
+                  011 403 66 978
                 </a>
               </li>
             </ul>

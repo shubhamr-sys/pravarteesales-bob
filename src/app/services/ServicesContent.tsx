@@ -1,6 +1,7 @@
-﻿"use client";
+"use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Network,
   ShieldCheck,
@@ -12,6 +13,53 @@ import {
   ArrowRight,
   CheckCircle2,
 } from "lucide-react";
+
+import adobe from "@/assets/technology-partner/adobe-logo.svg";
+import cisco from "@/assets/technology-partner/Cisco_logo_blue_2016.svg.webp";
+import dell from "@/assets/technology-partner/Dell_logo_2016.svg";
+import delta from "@/assets/technology-partner/delta-displays-logo.svg";
+import epson from "@/assets/technology-partner/epson-hd-logo.png";
+import fortinet from "@/assets/technology-partner/Fortinet_logo.svg";
+import hcl from "@/assets/technology-partner/HCL Tech.webp";
+import hpe from "@/assets/technology-partner/Hewlett_Packard_Enterprise_logo.svg";
+import hp from "@/assets/technology-partner/hp-logo-png.png";
+import ibm from "@/assets/technology-partner/ibm-striped_logo.avif";
+import lg from "@/assets/technology-partner/LGE_Logo_Mono_Black_RGB.svg";
+import microsoft from "@/assets/technology-partner/Microsoft_logo_(2012).svg";
+import poly from "@/assets/technology-partner/Poly_Inc._Logo.svg";
+import qnap from "@/assets/technology-partner/Qnap_Logo_2004.svg";
+import quickheal from "@/assets/technology-partner/Quick_Heal_LOGO-01.svg";
+import redhat from "@/assets/technology-partner/RedHatLogo.png";
+import seagate from "@/assets/technology-partner/seagate_PMS_stacked_pos.png";
+import sony from "@/assets/technology-partner/Sony_logo.svg.webp";
+import sophos from "@/assets/technology-partner/Sophos_logo.svg";
+import synology from "@/assets/technology-partner/synology_logo.jpg";
+
+const techPartners = [
+  { name: "Adobe", logo: adobe },
+  { name: "Cisco", logo: cisco },
+  { name: "Dell", logo: dell },
+  { name: "Delta Displays", logo: delta },
+  { name: "Epson", logo: epson },
+  { name: "Fortinet", logo: fortinet },
+  { name: "HCL Tech", logo: hcl },
+  { name: "Hewlett Packard Enterprise", logo: hpe },
+  { name: "HP", logo: hp },
+  { name: "IBM", logo: ibm },
+  { name: "LG", logo: lg },
+  { name: "Microsoft", logo: microsoft },
+  { name: "Poly", logo: poly },
+  { name: "QNAP", logo: qnap },
+  { name: "Quick Heal", logo: quickheal },
+  { name: "Red Hat", logo: redhat },
+  { name: "Seagate", logo: seagate },
+  { name: "Sony", logo: sony },
+  { name: "Sophos", logo: sophos },
+  { name: "Synology", logo: synology },
+];
+
+const partnerRow1 = [...techPartners.slice(0, 10), ...techPartners.slice(0, 10)];
+const partnerRow2 = [...techPartners.slice(10), ...techPartners.slice(10)];
 
 const services = [
   {
@@ -215,6 +263,71 @@ export default function ServicesContent() {
               </motion.div>
             );
           })}
+        </div>
+      </section>
+
+      {/* Technology Partners Marquee */}
+      <section className="py-16 bg-[#F8F9FA] overflow-hidden border-y border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 mb-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <span className="text-[#0057FF] text-sm font-semibold uppercase tracking-widest">
+              Technology Partners
+            </span>
+            <h2 className="mt-2 text-2xl md:text-3xl font-bold text-[#0A1F44] font-[var(--font-plus-jakarta)]">
+              Powered by World-Class Brands
+            </h2>
+          </motion.div>
+        </div>
+
+        {/* Row 1 — left to right */}
+        <div className="flex overflow-x-hidden mb-4">
+          <motion.div
+            className="flex gap-6 shrink-0"
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+          >
+            {partnerRow1.map((partner, i) => (
+              <div
+                key={i}
+                className="shrink-0 w-[180px] h-[80px] bg-white rounded-xl flex items-center justify-center p-4"
+                title={partner.name}
+              >
+                <Image
+                  src={partner.logo}
+                  alt={partner.name}
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Row 2 — right to left */}
+        <div className="flex overflow-x-hidden">
+          <motion.div
+            className="flex gap-6 shrink-0"
+            animate={{ x: ["-50%", "0%"] }}
+            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          >
+            {partnerRow2.map((partner, i) => (
+              <div
+                key={i}
+                className="shrink-0 w-[180px] h-[80px] bg-white rounded-xl flex items-center justify-center p-4"
+                title={partner.name}
+              >
+                <Image
+                  src={partner.logo}
+                  alt={partner.name}
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
