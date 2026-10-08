@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from "next";
+import { getProjects } from "@/lib/getProjects";
 import ProjectsContent from "./ProjectsContent";
 
 export const metadata: Metadata = {
@@ -7,6 +8,7 @@ export const metadata: Metadata = {
     "Explore Pravartee Sales government IT projects across defence, municipal, state departments, and public sector undertakings.",
 };
 
-export default function ProjectsPage() {
-  return <ProjectsContent />;
+export default async function ProjectsPage() {
+  const projects = await getProjects();
+  return <ProjectsContent projects={projects} />;
 }

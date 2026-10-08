@@ -3,13 +3,13 @@ import Image from "next/image";
 import { Mail, Phone, MapPin } from "lucide-react";
 
 const services = [
-  "Networks",
-  "Security",
-  "Server",
-  "Storage",
-  "Data Center",
-  "Artificial Intelligence",
-  "Digital Workspace",
+  { label: "Networks",              href: "/services#networks" },
+  { label: "Security",              href: "/services#security" },
+  { label: "Server",                href: "/services#server" },
+  { label: "Storage",               href: "/services#storage" },
+  { label: "Data Center",           href: "/services#data-center" },
+  { label: "Artificial Intelligence", href: "/services#ai" },
+  { label: "Digital Workspace",     href: "/services#digital-workspace" },
 ];
 
 const quickLinks = [
@@ -17,6 +17,7 @@ const quickLinks = [
   { label: "About Us", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "Projects", href: "/projects" },
+  { label: "Careers", href: "/careers" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -66,12 +67,12 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2">
               {services.map((s) => (
-                <li key={s}>
+                <li key={s.href}>
                   <Link
-                    href="/services"
+                    href={s.href}
                     className="text-white/60 hover:text-white text-sm transition-colors"
                   >
-                    {s}
+                    {s.label}
                   </Link>
                 </li>
               ))}
@@ -126,3 +127,4 @@ export default function Footer() {
     </footer>
   );
 }
+

@@ -1,8 +1,29 @@
-"use client";
-import { motion } from "framer-motion";
-import { Target, Eye, Award, Users, Quote } from "lucide-react";
+﻿"use client";
+import { useState, useRef } from "react";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { Target, Eye, Award, Users, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import directorImage from "@/assets/Director's Image.png";
+// Team member imports
+import deepikaSingh from "@/assets/Team Images/Deepika Singh -  Commercial Executive.png";
+import prachiTyagi from "@/assets/Team Images/Prachi  Tyagi - Business Development Manager.png";
+import rajKumar from "@/assets/Team Images/Raj Kumar - Accounts Executive.png";
+import sauravBisht from "@/assets/Team Images/SAURAV BISHT - GeM Tender Manager.png";
+import shailendraSahani from "@/assets/Team Images/shailendra sahani - Network Engineer.png";
+import shivamJha from "@/assets/Team Images/shivam jha -  Jr. Accounts executive.png";
+import shubhamRawat from "@/assets/Team Images/Shubham Rawat - Technology Officer.png";
+import sureshMehr from "@/assets/Team Images/suresh  mehr -  business development manager.png";
+
+const teamMembers = [
+  { name: "Deepika Singh",      designation: "Commercial Executive",          image: deepikaSingh      },
+  { name: "Prachi Tyagi",       designation: "Business Development Manager",  image: prachiTyagi       },
+  { name: "Raj Kumar",          designation: "Accounts Executive",            image: rajKumar          },
+  { name: "Saurav Bisht",       designation: "GeM Tender Manager",            image: sauravBisht       },
+  { name: "Shailendra Sahani",  designation: "Network Engineer",              image: shailendraSahani  },
+  { name: "Shivam Jha",         designation: "Jr. Accounts Executive",        image: shivamJha         },
+  { name: "Shubham Rawat",      designation: "Technology Officer",            image: shubhamRawat      },
+  { name: "Suresh Mehr",        designation: "Business Development Manager",  image: sureshMehr        },
+];
 
 const values = [
   {
@@ -15,7 +36,7 @@ const values = [
     icon: Eye,
     title: "Vision",
     description:
-      "To be India''s most trusted IT solutions partner for government, driving digital transformation across every tier of public administration.",
+      "To be India's most trusted IT solutions partner for government, driving digital transformation across every tier of public administration.",
   },
   {
     icon: Award,
@@ -65,6 +86,90 @@ const milestones = [
 ];
 
 
+function TeamCarousel() {
+  const [current, setCurrent] = useState(0);
+  const constraintsRef = useRef<HTMLDivElement>(null);
+  const VISIBLE = 8; // cards visible at once on desktop
+  const total = teamMembers.length;
+  const maxIndex = total - 1;
+
+  const prev = () => setCurrent((c) => Math.max(c - 1, 0));
+  const next = () => setCurrent((c) => Math.min(c + 1, maxIndex));
+
+  return (
+    <div className="relative">
+      {/* Prev / Next buttons */}
+      <button
+        onClick={prev}
+        disabled={current === 0}
+        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-11 h-11 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-[#0A1F44] hover:border-[#0057FF] hover:text-[#0057FF] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        aria-label="Previous"
+      >
+        <ChevronLeft size={20} />
+      </button>
+      <button
+        onClick={next}
+        disabled={current === maxIndex}
+        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-11 h-11 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-[#0A1F44] hover:border-[#0057FF] hover:text-[#0057FF] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        aria-label="Next"
+      >
+        <ChevronRight size={20} />
+      </button>
+
+      {/* Track */}
+      <div ref={constraintsRef} className="overflow-hidden mx-6">
+        <motion.div
+          className="flex gap-6"
+          animate={{ x: `calc(-${current} * (100% / ${VISIBLE} + 6px))` }}
+          transition={{ type: "spring", stiffness: 300, damping: 35 }}
+        >
+          {teamMembers.map((member, i) => (
+            <motion.div
+              key={member.name}
+              className="flex-none w-[calc((100%-18px*7)/8)] sm:w-[calc((100%-18px*4)/5)] bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-[#0057FF]/30 hover:shadow-xl hover:shadow-blue-50 transition-all duration-300 group"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.05 }}
+            >
+              <div className="aspect-[3/4] overflow-hidden bg-[#F0F4FF]">
+                <Image
+                  src={member.image}
+                  alt={member.name}
+                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <div className="p-5">
+                <h3 className="font-bold text-[#0A1F44] text-sm font-[var(--font-plus-jakarta)] leading-snug">
+                  {member.name}
+                </h3>
+                <p className="text-[#0057FF] text-xs mt-1 font-medium">
+                  {member.designation}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Dot indicators */}
+      <div className="flex justify-center gap-2 mt-8">
+        {teamMembers.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            className={`rounded-full transition-all duration-300 ${
+              i === current
+                ? "w-6 h-2 bg-[#0057FF]"
+                : "w-2 h-2 bg-[#0A1F44]/20 hover:bg-[#0057FF]/50"
+            }`}
+            aria-label={`Go to slide ${i + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 export default function AboutContent() {
   return (
     <>
@@ -148,7 +253,7 @@ export default function AboutContent() {
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-            {/* Director illustration */}
+            {/* Director image */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -182,7 +287,6 @@ export default function AboutContent() {
               className="lg:col-span-2"
             >
               <div className="bg-white rounded-3xl p-10 border border-gray-100 shadow-sm relative">
-                {/* Quote icon */}
                 <div className="absolute -top-5 left-8">
                   <div className="w-10 h-10 bg-[#0057FF] rounded-full flex items-center justify-center shadow-lg">
                     <Quote size={18} className="text-white" />
@@ -195,12 +299,12 @@ export default function AboutContent() {
                   </p>
                   <p>
                     When we founded Pravartee Sales, we had a clear conviction — that government institutions in India
-                    deserve the same quality of IT infrastructure that powers the world''s most advanced enterprises.
+                    deserve the same quality of IT infrastructure that powers the world's most advanced enterprises.
                     Over the past decade, that conviction has shaped every project we have undertaken, every team member
                     we have brought onboard, and every relationship we have built.
                   </p>
                   <p>
-                    The digital transformation of India''s public sector is not merely a technology challenge — it is a
+                    The digital transformation of India's public sector is not merely a technology challenge — it is a
                     nation-building mission. Roads, hospitals, defence, elections, taxation — these pillars of governance
                     increasingly depend on the reliability and security of IT systems. Pravartee Sales exists to be the
                     trusted backbone of this transformation.
@@ -225,7 +329,6 @@ export default function AboutContent() {
                   </p>
                 </div>
 
-                {/* Decorative signature line */}
                 <div className="mt-6 pt-6 border-t border-gray-100 flex items-center gap-4">
                   <div className="h-0.5 w-16 bg-[#0057FF]" />
                   <span className="text-xs text-[#0A1F44]/40 uppercase tracking-widest">Official Communication</span>
@@ -251,7 +354,6 @@ export default function AboutContent() {
 
           {/* Timeline */}
           <div className="relative">
-            {/* Center line */}
             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#0057FF] via-[#0057FF]/50 to-transparent -translate-x-1/2 hidden md:block" />
 
             <div className="space-y-12">
@@ -266,7 +368,6 @@ export default function AboutContent() {
                     transition={{ duration: 0.6, delay: i * 0.08 }}
                     className={`relative flex items-center gap-6 md:gap-0 ${isLeft ? "md:flex-row" : "md:flex-row-reverse"}`}
                   >
-                    {/* Card */}
                     <div className={`w-full md:w-5/12 ${isLeft ? "md:pr-12" : "md:pl-12"}`}>
                       <div className="bg-[#F8F9FA] rounded-2xl p-7 border border-gray-100 hover:border-[#0057FF]/30 hover:shadow-lg transition-all duration-300 group">
                         <div className="flex items-center gap-3 mb-3">
@@ -278,12 +379,10 @@ export default function AboutContent() {
                       </div>
                     </div>
 
-                    {/* Center dot */}
                     <div className="hidden md:flex w-2/12 justify-center">
                       <div className="w-5 h-5 rounded-full bg-[#0057FF] border-4 border-white shadow-md shadow-blue-200 z-10" />
                     </div>
 
-                    {/* Empty opposite side */}
                     <div className="hidden md:block w-5/12" />
                   </motion.div>
                 );
@@ -293,8 +392,32 @@ export default function AboutContent() {
         </div>
       </section>
 
+      {/* Meet the Team — Carousel */}
+      <section className="py-24 bg-[#F8F9FA] overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-14"
+          >
+            <span className="text-[#0057FF] text-sm font-semibold uppercase tracking-widest">
+              The People Behind the Work
+            </span>
+            <h2 className="mt-3 text-3xl md:text-4xl font-bold text-[#0A1F44] font-[var(--font-plus-jakarta)]">
+              Meet Our Team
+            </h2>
+            <p className="mt-3 text-[#0A1F44]/60 max-w-xl mx-auto">
+              A dedicated group of specialists committed to delivering excellence across every government IT engagement.
+            </p>
+          </motion.div>
+
+          <TeamCarousel />
+        </div>
+      </section>
+
       {/* Values */}
-      <section className="py-24 bg-[#F8F9FA]">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
             <span className="text-[#0057FF] text-sm font-semibold uppercase tracking-widest">Our Foundation</span>
@@ -313,7 +436,7 @@ export default function AboutContent() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="bg-white rounded-2xl p-8 border border-gray-100 hover:border-[#0057FF]/30 hover:shadow-lg transition-all duration-300"
+                  className="bg-[#F8F9FA] rounded-2xl p-8 border border-gray-100 hover:border-[#0057FF]/30 hover:shadow-lg transition-all duration-300"
                 >
                   <div className="w-12 h-12 rounded-xl bg-[#0057FF]/10 flex items-center justify-center mb-5">
                     <Icon size={22} className="text-[#0057FF]" />
