@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql, ensureTable } from "@/lib/db";
 
 /* ------------------------------------------------------------------ */
-/*  POST /api/contact  — submit a contact query                        */
+/*  POST /api/contact  - submit a contact query                        */
 /* ------------------------------------------------------------------ */
 export async function POST(req: NextRequest) {
   try {
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  GET /api/contact  — list all queries (admin only)                  */
+/*  GET /api/contact  - list all queries (admin only)                  */
 /*  Requires header:  x-admin-secret: <CONTACT_ADMIN_SECRET>           */
 /* ------------------------------------------------------------------ */
 export async function GET(req: NextRequest) {
