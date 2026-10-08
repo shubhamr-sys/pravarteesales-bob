@@ -1,25 +1,32 @@
-import { neon } from "@neondatabase/serverless";
+import { neon, NeonQueryFunction } from "@neondatabase/serverless";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set.");
+let _sql: NeonQueryFunction<false, false> | null = null;
+
+function getClient(): NeonQueryFunction<false, false> {
+  if (!_sql) {
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL environment variable is not set.");
+    }
+    _sql = neon(process.env.DATABASE_URL);
+  }
+  return _sql;
 }
 
-export const sql = neon(process.env.DATABASE_URL);
+export function sql(...args: Parameters<NeonQueryFunction<false, false>>) {
+  return getClient()(...args);
+}
 
-/**
- * Ensures the contact_queries table exists.
- * Called once at server startup via the API routes.
- */
 export async function ensureTable() {
-  await sql`
+  const client = getClient();
+  await client`
     CREATE TABLE IF NOT EXISTS contact_queries (
-      id          SERIAL PRIMARY KEY,
-      name        TEXT        NOT NULL,
-      email       TEXT        NOT NULL,
+      id           SERIAL PRIMARY KEY,
+      name         TEXT        NOT NULL,
+      email        TEXT        NOT NULL,
       organisation TEXT,
-      service     TEXT,
-      message     TEXT        NOT NULL,
-      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      service      TEXT,
+      message      TEXT        NOT NULL,
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `;
 }
