@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -19,8 +19,13 @@ const plusJakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Pravartee Sales | IT Solutions for Government",
   description:
-    "Pravartee Sales delivers end-to-end IT solutions — Networks, Security, Servers, Storage, Data Centers, AI, and Digital Workspace — trusted by government institutions across India.",
+    "Pravartee Sales delivers end-to-end IT solutions - Networks, Security, Servers, Storage, Data Centers, AI, and Digital Workspace - trusted by government institutions across India.",
   keywords: "IT solutions, government IT, network, security, data center, AI, digital workspace, India",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "Pravartee Sales | IT Solutions for Government",
     description:
