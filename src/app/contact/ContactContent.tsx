@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Mail, Phone, MapPin, Send, CheckCircle2 } from "lucide-react";
@@ -24,17 +24,58 @@ const contactInfo = [
   },
 ];
 
+interface FormState {
+  name: string;
+  email: string;
+  organisation: string;
+  service: string;
+  message: string;
+}
+
+const EMPTY_FORM: FormState = {
+  name: "",
+  email: "",
+  organisation: "",
+  service: "",
+  message: "",
+};
+
 export default function ContactContent() {
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate form submission — integrate with Formspree/Resend in production
-    await new Promise((r) => setTimeout(r, 1200));
-    setLoading(false);
-    setSubmitted(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Something went wrong. Please try again.");
+      }
+
+      setSubmitted(true);
+      setForm(EMPTY_FORM);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -157,7 +198,10 @@ export default function ContactContent() {
                       </label>
                       <input
                         type="text"
+                        name="name"
                         required
+                        value={form.name}
+                        onChange={handleChange}
                         placeholder="Your full name"
                         className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#0A1F44] placeholder-gray-400 focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10 transition-all"
                       />
@@ -168,7 +212,10 @@ export default function ContactContent() {
                       </label>
                       <input
                         type="email"
+                        name="email"
                         required
+                        value={form.email}
+                        onChange={handleChange}
                         placeholder="your@email.com"
                         className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#0A1F44] placeholder-gray-400 focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10 transition-all"
                       />
@@ -182,6 +229,9 @@ export default function ContactContent() {
                       </label>
                       <input
                         type="text"
+                        name="organisation"
+                        value={form.organisation}
+                        onChange={handleChange}
                         placeholder="Department / Company name"
                         className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#0A1F44] placeholder-gray-400 focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10 transition-all"
                       />
@@ -190,7 +240,12 @@ export default function ContactContent() {
                       <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A1F44]/50 mb-2">
                         Service of Interest
                       </label>
-                      <select className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#0A1F44] focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10 transition-all bg-white">
+                      <select
+                        name="service"
+                        value={form.service}
+                        onChange={handleChange}
+                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#0A1F44] focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10 transition-all bg-white"
+                      >
                         <option value="">Select a service</option>
                         <option>Networks</option>
                         <option>Security</option>
@@ -209,12 +264,21 @@ export default function ContactContent() {
                       Message <span className="text-red-500">*</span>
                     </label>
                     <textarea
+                      name="message"
                       required
                       rows={5}
+                      value={form.message}
+                      onChange={handleChange}
                       placeholder="Describe your requirements or questions..."
                       className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#0A1F44] placeholder-gray-400 focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10 transition-all resize-none"
                     />
                   </div>
+
+                  {error && (
+                    <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                      {error}
+                    </p>
+                  )}
 
                   <button
                     type="submit"
