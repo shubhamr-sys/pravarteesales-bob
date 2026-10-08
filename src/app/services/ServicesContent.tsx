@@ -20,7 +20,7 @@ import dell from "@/assets/technology-partner/Dell_logo_2016.svg";
 import delta from "@/assets/technology-partner/delta-displays-logo.svg";
 import epson from "@/assets/technology-partner/epson-hd-logo.png";
 import fortinet from "@/assets/technology-partner/Fortinet_logo.svg";
-import hcl from "@/assets/technology-partner/HCL Tech.webp";
+import hcl from "@/assets/technology-partner/HCL Tech.jpg";
 import hpe from "@/assets/technology-partner/Hewlett_Packard_Enterprise_logo.svg";
 import hp from "@/assets/technology-partner/hp-logo-png.png";
 import ibm from "@/assets/technology-partner/ibm-striped_logo.avif";
@@ -29,7 +29,7 @@ import microsoft from "@/assets/technology-partner/Microsoft_logo_(2012).svg";
 import poly from "@/assets/technology-partner/Poly_Inc._Logo.svg";
 import qnap from "@/assets/technology-partner/Qnap_Logo_2004.svg";
 import quickheal from "@/assets/technology-partner/Quick_Heal_LOGO-01.svg";
-import redhat from "@/assets/technology-partner/RedHatLogo.png";
+import redhat from "@/assets/technology-partner/RedHatLogo.jpg";
 import seagate from "@/assets/technology-partner/seagate_PMS_stacked_pos.png";
 import sony from "@/assets/technology-partner/Sony_logo.svg.webp";
 import sophos from "@/assets/technology-partner/Sophos_logo.svg";
@@ -63,6 +63,7 @@ const partnerRow2 = [...techPartners.slice(10), ...techPartners.slice(10)];
 
 const services = [
   {
+    id: "networks",
     icon: Network,
     title: "Networks",
     tagline: "Connected. Secure. Reliable.",
@@ -78,6 +79,7 @@ const services = [
     ],
   },
   {
+    id: "security",
     icon: ShieldCheck,
     title: "Security",
     tagline: "Protect. Detect. Respond.",
@@ -93,6 +95,7 @@ const services = [
     ],
   },
   {
+    id: "server",
     icon: Server,
     title: "Server",
     tagline: "Power. Scalability. Performance.",
@@ -108,6 +111,7 @@ const services = [
     ],
   },
   {
+    id: "storage",
     icon: Database,
     title: "Storage",
     tagline: "Secure. Scalable. Always Available.",
@@ -123,6 +127,7 @@ const services = [
     ],
   },
   {
+    id: "data-center",
     icon: Building2,
     title: "Data Center",
     tagline: "Design. Build. Manage.",
@@ -138,6 +143,7 @@ const services = [
     ],
   },
   {
+    id: "ai",
     icon: BrainCircuit,
     title: "Artificial Intelligence",
     tagline: "Intelligent Government. Smarter Decisions.",
@@ -153,6 +159,7 @@ const services = [
     ],
   },
   {
+    id: "digital-workspace",
     icon: Monitor,
     title: "Digital Workspace",
     tagline: "Work Anywhere. Securely.",
@@ -210,12 +217,13 @@ export default function ServicesContent() {
             const isEven = i % 2 === 0;
             return (
               <motion.div
+                id={service.id}
                 key={service.title}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className={`grid grid-cols-1 lg:grid-cols-2 gap-14 items-center ${
+                className={`grid grid-cols-1 lg:grid-cols-2 gap-14 items-center scroll-mt-24 ${
                   isEven ? "" : "lg:flex-row-reverse"
                 }`}
               >
