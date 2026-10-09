@@ -20,6 +20,11 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE() {
   const res = NextResponse.json({ success: true });
-  res.cookies.delete("admin_session");
+  res.cookies.set("admin_session", "", {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
   return res;
 }
