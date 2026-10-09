@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,126 +7,20 @@ import {
   Briefcase, Rocket, Users, Shield, TrendingUp, Heart,
 } from "lucide-react";
 
-/* ── data ────────────────────────────────────────────────────── */
+/* ── types ───────────────────────────────────────────────────── */
+export interface JobOpening {
+  id: number;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  experience: string;
+  description: string;
+  responsibilities: string[];
+  requirements: string[];
+}
 
-const openings = [
-  {
-    title: "Business Development Executive",
-    department: "Sales & Business Development",
-    location: "Noida, UP",
-    type: "Full-time",
-    experience: "1–3 years",
-    description:
-      "Drive new business opportunities across government and public sector accounts. You will identify leads, prepare proposals, represent Pravartee Sales at GEM portals and government procurement events, and build long-term client relationships.",
-    responsibilities: [
-      "Identify and pursue new government accounts through GEM, tenders, and direct outreach",
-      "Prepare and present proposals, quotations, and technical bids",
-      "Maintain and grow relationships with existing clients",
-      "Coordinate with technical and delivery teams to ensure successful project handoffs",
-      "Meet and exceed monthly and quarterly revenue targets",
-    ],
-    requirements: [
-      "1–3 years of B2G or B2B sales experience, preferably in IT hardware or solutions",
-      "Familiarity with Government e-Marketplace (GEM) portal is a strong plus",
-      "Strong communication and negotiation skills",
-      "Proficiency in MS Office; CRM experience is a bonus",
-      "Self-motivated, target-driven, and comfortable working independently",
-    ],
-  },
-  {
-    title: "Network Engineer",
-    department: "Engineering & Delivery",
-    location: "Noida, UP",
-    type: "Full-time",
-    experience: "2–5 years",
-    description:
-      "Design, deploy, and support enterprise network infrastructure for government clients. You will work hands-on with switches, routers, firewalls, and wireless systems — ensuring high availability and security for mission-critical government networks.",
-    responsibilities: [
-      "Design and implement LAN, WAN, and wireless network solutions for government sites",
-      "Configure and manage switches, routers, firewalls (Cisco, Fortinet, HP Aruba)",
-      "Perform network audits, capacity planning, and performance optimisation",
-      "Respond to and resolve network incidents and escalations",
-      "Prepare technical documentation, network diagrams, and handover reports",
-    ],
-    requirements: [
-      "2–5 years of hands-on network engineering experience",
-      "Proficiency with Cisco IOS, FortiOS, or HP Comware",
-      "CCNA/CCNP or equivalent certification preferred",
-      "Experience with government or defence network environments is a plus",
-      "Strong troubleshooting skills and ability to work on-site at client locations",
-    ],
-  },
-  {
-    title: "GeM & Tender Specialist",
-    department: "Procurement & Compliance",
-    location: "Noida, UP",
-    type: "Full-time",
-    experience: "1–4 years",
-    description:
-      "Manage end-to-end participation in Government e-Marketplace (GEM) bids and government tenders. You will ensure timely, accurate, and competitive bid submissions while staying compliant with all government procurement regulations.",
-    responsibilities: [
-      "Monitor and track GEM portal for relevant bids, tenders, and opportunities",
-      "Prepare and submit accurate bid documents, price bids, and technical bids",
-      "Coordinate with OEM partners for authorisation letters and compliance documents",
-      "Maintain bid calendar and ensure zero missed deadlines",
-      "Liaise with clients and buyers for clarifications and order processing",
-    ],
-    requirements: [
-      "1–4 years of experience specifically with GEM portal or government tendering",
-      "Strong attention to detail and ability to manage multiple bids simultaneously",
-      "Knowledge of GeM policies, L1 bidding, and government procurement rules",
-      "Proficiency in MS Excel, Word, and PDF document handling",
-      "Good written communication for preparing bid narratives and compliance statements",
-    ],
-  },
-  {
-    title: "IT Support & Field Engineer",
-    department: "Engineering & Delivery",
-    location: "Noida / Delhi NCR (Field)",
-    type: "Full-time",
-    experience: "1–3 years",
-    description:
-      "Provide on-site and remote IT support to government clients across Delhi NCR. You will handle hardware installation, configuration, troubleshooting, and maintenance for desktops, laptops, printers, servers, and networking equipment.",
-    responsibilities: [
-      "Install, configure, and commission IT equipment at government client sites",
-      "Provide first- and second-level support for hardware, software, and network issues",
-      "Maintain asset registers and update service records",
-      "Coordinate with OEM service centres for warranty repairs and replacements",
-      "Travel to client sites as required within Delhi NCR",
-    ],
-    requirements: [
-      "1–3 years of IT support or field engineering experience",
-      "Hands-on experience with Windows OS, MS Office, and basic networking",
-      "Ability to handle physical hardware installation and cabling",
-      "Good communication and professional conduct at client government premises",
-      "Valid driver's licence or willingness to commute across NCR",
-    ],
-  },
-  {
-    title: "Accounts Executive",
-    department: "Finance & Accounts",
-    location: "Noida, UP",
-    type: "Full-time",
-    experience: "1–3 years",
-    description:
-      "Handle day-to-day financial operations including invoicing, GST compliance, vendor payments, and reconciliation. You will work closely with the sales and procurement teams to ensure accurate and timely financial records.",
-    responsibilities: [
-      "Raise invoices, process purchase orders, and manage accounts receivable/payable",
-      "Prepare and file GST returns and maintain tax compliance records",
-      "Perform monthly bank reconciliations and ledger entries in Tally",
-      "Assist in preparation of MIS reports and financial summaries for management",
-      "Coordinate with vendors, clients, and the CA for audit requirements",
-    ],
-    requirements: [
-      "1–3 years of accounting experience, preferably in a trading or IT company",
-      "Proficiency in Tally ERP and MS Excel",
-      "Working knowledge of GST, TDS, and basic accounting principles",
-      "High accuracy and attention to detail in financial data entry",
-      "B.Com or equivalent degree in Accounting/Finance",
-    ],
-  },
-];
-
+/* ── perks (static) ──────────────────────────────────────────── */
 const perks = [
   { icon: Rocket,     title: "High-Impact Work",      description: "Your work powers real government infrastructure — defence, healthcare, education, and beyond." },
   { icon: TrendingUp, title: "Fast Growth",            description: "A lean, growing team means your contributions are visible and promotions are merit-based." },
@@ -137,8 +31,7 @@ const perks = [
 ];
 
 /* ── role card ───────────────────────────────────────────────── */
-
-function RoleCard({ role, index }: { role: typeof openings[number]; index: number }) {
+function RoleCard({ role, index }: { role: JobOpening; index: number }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -165,16 +58,20 @@ function RoleCard({ role, index }: { role: typeof openings[number]; index: numbe
             <span className="text-xs font-medium bg-gray-100 text-gray-600 px-3 py-1 rounded-full flex items-center gap-1">
               <Clock size={11} /> {role.type}
             </span>
-            <span className="text-xs font-medium bg-[#F5A623]/10 text-[#c47d00] px-3 py-1 rounded-full">
-              {role.experience}
-            </span>
+            {role.experience && (
+              <span className="text-xs font-medium bg-[#F5A623]/10 text-[#c47d00] px-3 py-1 rounded-full">
+                {role.experience}
+              </span>
+            )}
           </div>
           <h3 className="font-bold text-[#0A1F44] text-xl font-[var(--font-plus-jakarta)]">
             {role.title}
           </h3>
-          <p className="mt-2 text-sm text-[#0A1F44]/60 leading-relaxed">
-            {role.description}
-          </p>
+          {role.description && (
+            <p className="mt-2 text-sm text-[#0A1F44]/60 leading-relaxed">
+              {role.description}
+            </p>
+          )}
         </div>
         <div className="mt-1 shrink-0 w-8 h-8 rounded-full bg-[#F8F9FA] flex items-center justify-center text-[#0A1F44]/50">
           {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
@@ -194,33 +91,37 @@ function RoleCard({ role, index }: { role: typeof openings[number]; index: numbe
           >
             <div className="px-7 pb-7 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-100 pt-6">
               {/* Responsibilities */}
-              <div>
-                <h4 className="font-semibold text-[#0A1F44] text-sm mb-3 uppercase tracking-wide">
-                  Responsibilities
-                </h4>
-                <ul className="space-y-2">
-                  {role.responsibilities.map((r) => (
-                    <li key={r} className="flex items-start gap-2 text-sm text-[#0A1F44]/65">
-                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#0057FF] shrink-0" />
-                      {r}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {role.responsibilities.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-[#0A1F44] text-sm mb-3 uppercase tracking-wide">
+                    Responsibilities
+                  </h4>
+                  <ul className="space-y-2">
+                    {role.responsibilities.map((r) => (
+                      <li key={r} className="flex items-start gap-2 text-sm text-[#0A1F44]/65">
+                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#0057FF] shrink-0" />
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {/* Requirements */}
-              <div>
-                <h4 className="font-semibold text-[#0A1F44] text-sm mb-3 uppercase tracking-wide">
-                  Requirements
-                </h4>
-                <ul className="space-y-2">
-                  {role.requirements.map((r) => (
-                    <li key={r} className="flex items-start gap-2 text-sm text-[#0A1F44]/65">
-                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#F5A623] shrink-0" />
-                      {r}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {role.requirements.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-[#0A1F44] text-sm mb-3 uppercase tracking-wide">
+                    Requirements
+                  </h4>
+                  <ul className="space-y-2">
+                    {role.requirements.map((r) => (
+                      <li key={r} className="flex items-start gap-2 text-sm text-[#0A1F44]/65">
+                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#F5A623] shrink-0" />
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
             {/* Apply CTA */}
             <div className="px-7 pb-7">
@@ -242,8 +143,7 @@ function RoleCard({ role, index }: { role: typeof openings[number]; index: numbe
 }
 
 /* ── page ────────────────────────────────────────────────────── */
-
-export default function CareersContent() {
+export default function CareersContent({ openings }: { openings: JobOpening[] }) {
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────── */}
@@ -359,11 +259,17 @@ export default function CareersContent() {
             </p>
           </motion.div>
 
-          <div className="space-y-4">
-            {openings.map((role, i) => (
-              <RoleCard key={role.title} role={role} index={i} />
-            ))}
-          </div>
+          {openings.length > 0 ? (
+            <div className="space-y-4">
+              {openings.map((role, i) => (
+                <RoleCard key={role.id} role={role} index={i} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-[#0A1F44]/40 py-16">
+              No open positions at the moment. Check back soon!
+            </p>
+          )}
         </div>
       </section>
 

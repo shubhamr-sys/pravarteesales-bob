@@ -33,3 +33,22 @@ export async function ensureTable() {
     )
   `;
 }
+
+export async function ensureJobsTable() {
+  const client = getClient();
+  await client`
+    CREATE TABLE IF NOT EXISTS job_openings (
+      id               SERIAL PRIMARY KEY,
+      title            TEXT        NOT NULL,
+      department       TEXT        NOT NULL,
+      location         TEXT        NOT NULL DEFAULT 'Noida, UP',
+      type             TEXT        NOT NULL DEFAULT 'Full-time',
+      experience       TEXT        NOT NULL DEFAULT '',
+      description      TEXT        NOT NULL DEFAULT '',
+      responsibilities JSONB       NOT NULL DEFAULT '[]',
+      requirements     JSONB       NOT NULL DEFAULT '[]',
+      active           BOOLEAN     NOT NULL DEFAULT TRUE,
+      created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+}
