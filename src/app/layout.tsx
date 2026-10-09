@@ -22,9 +22,12 @@ export const metadata: Metadata = {
     "Pravartee Sales delivers end-to-end IT solutions - Networks, Security, Servers, Storage, Data Centers, AI, and Digital Workspace - trusted by government institutions across India.",
   keywords: "IT solutions, government IT, network, security, data center, AI, digital workspace, India",
   icons: {
-    icon: "/icon.svg",
-    shortcut: "/icon.svg",
-    apple: "/icon.svg",
+    icon: [
+      { url: "/favicon.png",       media: "(prefers-color-scheme: light)" },
+      { url: "/favicon-white.webp", media: "(prefers-color-scheme: dark)"  },
+    ],
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
   openGraph: {
     title: "Pravartee Sales | IT Solutions for Government",

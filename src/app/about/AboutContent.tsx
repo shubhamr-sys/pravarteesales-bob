@@ -1,6 +1,6 @@
-﻿"use client";
-import { useState, useRef } from "react";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+"use client";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 import { Target, Eye, Award, Users, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import directorImage from "@/assets/Director's Image.png";
@@ -86,30 +86,86 @@ const milestones = [
 ];
 
 
-function TeamCarousel() {
-  const [current, setCurrent] = useState(0);
-  const constraintsRef = useRef<HTMLDivElement>(null);
-  const VISIBLE = 8; // cards visible at once on desktop
-  const total = teamMembers.length;
-  const maxIndex = total - 1;
+const DESKTOP_VISIBLE = 8;
+const AUTO_INTERVAL = 3000; // ms
 
-  const prev = () => setCurrent((c) => Math.max(c - 1, 0));
-  const next = () => setCurrent((c) => Math.min(c + 1, maxIndex));
+function TeamCarousel() {
+  const total = teamMembers.length;
+  const [current, setCurrent] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  /* ── detect mobile ─────────────────────────────────────────── */
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  /* ── auto-scroll (mobile only) ─────────────────────────────── */
+  const startAuto = useCallback(() => {
+    if (autoRef.current) clearInterval(autoRef.current);
+    autoRef.current = setInterval(() => {
+      setCurrent((c) => (c + 1) % total);
+    }, AUTO_INTERVAL);
+  }, [total]);
+
+  const stopAuto = useCallback(() => {
+    if (autoRef.current) {
+      clearInterval(autoRef.current);
+      autoRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) {
+      startAuto();
+    } else {
+      stopAuto();
+    }
+    return stopAuto;
+  }, [isMobile, startAuto, stopAuto]);
+
+  /* ── manual nav ─────────────────────────────────────────────── */
+  const maxIndex = isMobile ? total - 1 : total - 1;
+
+  const prev = () => {
+    setCurrent((c) => (isMobile ? (c - 1 + total) % total : Math.max(c - 1, 0)));
+    if (isMobile) { stopAuto(); startAuto(); }
+  };
+  const next = () => {
+    setCurrent((c) => (isMobile ? (c + 1) % total : Math.min(c + 1, maxIndex)));
+    if (isMobile) { stopAuto(); startAuto(); }
+  };
+  const goTo = (i: number) => {
+    setCurrent(i);
+    if (isMobile) { stopAuto(); startAuto(); }
+  };
+
+  /* ── translate calculation ──────────────────────────────────── */
+  // Mobile: each card is 100% of the track width (gap is 0)
+  // Desktop: each card is 1/DESKTOP_VISIBLE of the track width
+  const translateX = isMobile
+    ? `calc(-${current} * 100%)`
+    : `calc(-${current} * (100% / ${DESKTOP_VISIBLE} + 6px))`;
 
   return (
     <div className="relative">
-      {/* Prev / Next buttons */}
+      {/* Prev button */}
       <button
         onClick={prev}
-        disabled={current === 0}
+        disabled={!isMobile && current === 0}
         className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-11 h-11 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-[#0A1F44] hover:border-[#0057FF] hover:text-[#0057FF] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="Previous"
       >
         <ChevronLeft size={20} />
       </button>
+
+      {/* Next button */}
       <button
         onClick={next}
-        disabled={current === maxIndex}
+        disabled={!isMobile && current === maxIndex}
         className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-11 h-11 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-[#0A1F44] hover:border-[#0057FF] hover:text-[#0057FF] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="Next"
       >
@@ -117,16 +173,21 @@ function TeamCarousel() {
       </button>
 
       {/* Track */}
-      <div ref={constraintsRef} className="overflow-hidden mx-6">
+      <div className="overflow-hidden mx-6">
         <motion.div
-          className="flex gap-6"
-          animate={{ x: `calc(-${current} * (100% / ${VISIBLE} + 6px))` }}
+          className="flex"
+          style={{ gap: isMobile ? 0 : "1.5rem" }}
+          animate={{ x: translateX }}
           transition={{ type: "spring", stiffness: 300, damping: 35 }}
         >
           {teamMembers.map((member, i) => (
             <motion.div
               key={member.name}
-              className="flex-none w-[calc((100%-18px*7)/8)] sm:w-[calc((100%-18px*4)/5)] bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-[#0057FF]/30 hover:shadow-xl hover:shadow-blue-50 transition-all duration-300 group"
+              className={`bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-[#0057FF]/30 hover:shadow-xl hover:shadow-blue-50 transition-all duration-300 group ${
+                isMobile
+                  ? "flex-none w-full"
+                  : "flex-none w-[calc((100%-18px*7)/8)] sm:w-[calc((100%-18px*4)/5)]"
+              }`}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -157,7 +218,7 @@ function TeamCarousel() {
         {teamMembers.map((_, i) => (
           <button
             key={i}
-            onClick={() => setCurrent(i)}
+            onClick={() => goTo(i)}
             className={`rounded-full transition-all duration-300 ${
               i === current
                 ? "w-6 h-2 bg-[#0057FF]"
