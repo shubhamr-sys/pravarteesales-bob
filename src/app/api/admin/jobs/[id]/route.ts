@@ -11,29 +11,34 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!isAuthed(req)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
-  const { id } = await params;
-  const body = await req.json();
-  const { title, department, location, type, experience, description, responsibilities, requirements, active } = body;
+  try {
+    const { id } = await params;
+    const body = await req.json();
+    const { title, department, location, type, experience, description, responsibilities, requirements, active } = body;
 
-  await ensureJobsTable();
-  const rows = await sql`
-    UPDATE job_openings SET
-      title            = COALESCE(${title ?? null},            title),
-      department       = COALESCE(${department ?? null},       department),
-      location         = COALESCE(${location ?? null},         location),
-      type             = COALESCE(${type ?? null},             type),
-      experience       = COALESCE(${experience ?? null},       experience),
-      description      = COALESCE(${description ?? null},      description),
-      responsibilities = COALESCE(${responsibilities != null ? JSON.stringify(responsibilities) : null}::jsonb, responsibilities),
-      requirements     = COALESCE(${requirements != null ? JSON.stringify(requirements) : null}::jsonb,     requirements),
-      active           = COALESCE(${active ?? null},           active)
-    WHERE id = ${id}
-    RETURNING *
-  `;
-  if (!rows.length) {
-    return NextResponse.json({ error: "Not found." }, { status: 404 });
+    await ensureJobsTable();
+    const rows = await sql`
+      UPDATE job_openings SET
+        title            = COALESCE(${title ?? null},            title),
+        department       = COALESCE(${department ?? null},       department),
+        location         = COALESCE(${location ?? null},         location),
+        type             = COALESCE(${type ?? null},             type),
+        experience       = COALESCE(${experience ?? null},       experience),
+        description      = COALESCE(${description ?? null},      description),
+        responsibilities = COALESCE(${responsibilities != null ? JSON.stringify(responsibilities) : null}::jsonb, responsibilities),
+        requirements     = COALESCE(${requirements != null ? JSON.stringify(requirements) : null}::jsonb,     requirements),
+        active           = COALESCE(${active ?? null},           active)
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    if (!rows.length) {
+      return NextResponse.json({ error: "Not found." }, { status: 404 });
+    }
+    return NextResponse.json({ job: rows[0] });
+  } catch (err) {
+    console.error("[PATCH /api/admin/jobs/[id]]", err);
+    return NextResponse.json({ error: "Database error. Check DATABASE_URL." }, { status: 500 });
   }
-  return NextResponse.json({ job: rows[0] });
 }
 
 /* DELETE /api/admin/jobs/[id] — permanently remove */
@@ -41,8 +46,13 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!isAuthed(req)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
-  const { id } = await params;
-  await ensureJobsTable();
-  await sql`DELETE FROM job_openings WHERE id = ${id}`;
-  return NextResponse.json({ success: true });
+  try {
+    const { id } = await params;
+    await ensureJobsTable();
+    await sql`DELETE FROM job_openings WHERE id = ${id}`;
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[DELETE /api/admin/jobs/[id]]", err);
+    return NextResponse.json({ error: "Database error. Check DATABASE_URL." }, { status: 500 });
+  }
 }

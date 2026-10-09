@@ -11,11 +11,14 @@ export async function GET(req: NextRequest) {
   if (!isAuthed(req)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
-  await ensureJobsTable();
-  const rows = await sql`
-    SELECT * FROM job_openings ORDER BY created_at DESC
-  `;
-  return NextResponse.json({ jobs: rows });
+  try {
+    await ensureJobsTable();
+    const rows = await sql`SELECT * FROM job_openings ORDER BY created_at DESC`;
+    return NextResponse.json({ jobs: rows });
+  } catch (err) {
+    console.error("[GET /api/admin/jobs]", err);
+    return NextResponse.json({ error: "Database error. Check DATABASE_URL." }, { status: 500 });
+  }
 }
 
 /* POST /api/admin/jobs — create a new job */
@@ -23,27 +26,32 @@ export async function POST(req: NextRequest) {
   if (!isAuthed(req)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
-  const body = await req.json();
-  const { title, department, location, type, experience, description, responsibilities, requirements } = body;
+  try {
+    const body = await req.json();
+    const { title, department, location, type, experience, description, responsibilities, requirements } = body;
 
-  if (!title || !department) {
-    return NextResponse.json({ error: "title and department are required." }, { status: 400 });
+    if (!title || !department) {
+      return NextResponse.json({ error: "title and department are required." }, { status: 400 });
+    }
+
+    await ensureJobsTable();
+    const rows = await sql`
+      INSERT INTO job_openings (title, department, location, type, experience, description, responsibilities, requirements)
+      VALUES (
+        ${title},
+        ${department},
+        ${location ?? "Noida, UP"},
+        ${type ?? "Full-time"},
+        ${experience ?? ""},
+        ${description ?? ""},
+        ${JSON.stringify(responsibilities ?? [])}::jsonb,
+        ${JSON.stringify(requirements ?? [])}::jsonb
+      )
+      RETURNING *
+    `;
+    return NextResponse.json({ job: rows[0] }, { status: 201 });
+  } catch (err) {
+    console.error("[POST /api/admin/jobs]", err);
+    return NextResponse.json({ error: "Database error. Check DATABASE_URL." }, { status: 500 });
   }
-
-  await ensureJobsTable();
-  const rows = await sql`
-    INSERT INTO job_openings (title, department, location, type, experience, description, responsibilities, requirements)
-    VALUES (
-      ${title},
-      ${department},
-      ${location ?? "Noida, UP"},
-      ${type ?? "Full-time"},
-      ${experience ?? ""},
-      ${description ?? ""},
-      ${JSON.stringify(responsibilities ?? [])}::jsonb,
-      ${JSON.stringify(requirements ?? [])}::jsonb
-    )
-    RETURNING *
-  `;
-  return NextResponse.json({ job: rows[0] }, { status: 201 });
 }

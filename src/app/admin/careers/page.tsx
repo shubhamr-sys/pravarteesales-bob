@@ -212,10 +212,19 @@ export default function AdminCareersPage() {
 
   const fetchJobs = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/admin/jobs");
-    if (res.status === 401) { router.push("/admin/login"); return; }
-    const data = await res.json();
-    setJobs(data.jobs ?? []);
+    try {
+      const res = await fetch("/api/admin/jobs");
+      if (res.status === 401) { router.push("/admin/login"); return; }
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Failed to load jobs.");
+        setLoading(false);
+        return;
+      }
+      setJobs(data.jobs ?? []);
+    } catch {
+      setError("Could not reach the server. Check your DATABASE_URL environment variable.");
+    }
     setLoading(false);
   }, [router]);
 
