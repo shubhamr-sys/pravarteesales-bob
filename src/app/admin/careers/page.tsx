@@ -33,6 +33,17 @@ const EMPTY_JOB = {
   requirements: [""],
 };
 
+const LOCATION_OPTIONS = [
+  "Noida, UP",
+  "Noida / Delhi NCR",
+  "Noida / Delhi NCR (Field)",
+  "Delhi NCR",
+  "Remote",
+  "Hybrid",
+];
+
+const TYPE_OPTIONS = ["Full-time", "Part-time", "Contract", "Internship"];
+
 /* ── helpers ─────────────────────────────────────────────────── */
 function ListEditor({
   label,
@@ -117,7 +128,6 @@ function JobForm({
         {[
           { key: "title", label: "Job Title *", placeholder: "e.g. Network Engineer" },
           { key: "department", label: "Department *", placeholder: "e.g. Engineering & Delivery" },
-          { key: "location", label: "Location", placeholder: "Noida, UP" },
           { key: "experience", label: "Experience", placeholder: "e.g. 2–5 years" },
         ].map(({ key, label, placeholder }) => (
           <div key={key}>
@@ -136,15 +146,45 @@ function JobForm({
 
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A1F44]/50 mb-2">
+            Location
+          </label>
+          <select
+            value={LOCATION_OPTIONS.includes(form.location) ? form.location : "__custom__"}
+            onChange={(e) => {
+              const v = e.target.value;
+              setForm((p) => ({
+                ...p,
+                location: v === "__custom__" ? (LOCATION_OPTIONS.includes(p.location) ? "" : p.location) : v,
+              }));
+            }}
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-[#0A1F44] focus:outline-none focus:border-[#0057FF] bg-white"
+          >
+            {LOCATION_OPTIONS.map((loc) => (
+              <option key={loc} value={loc}>{loc}</option>
+            ))}
+            <option value="__custom__">Other (custom)</option>
+          </select>
+          {!LOCATION_OPTIONS.includes(form.location) && (
+            <input
+              value={form.location}
+              onChange={field("location")}
+              placeholder="Enter custom location"
+              className="mt-2 w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-[#0A1F44] focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10 bg-white"
+            />
+          )}
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A1F44]/50 mb-2">
             Employment Type
           </label>
           <select
-            value={form.type}
+            value={TYPE_OPTIONS.includes(form.type) ? form.type : "Full-time"}
             onChange={field("type")}
             className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-[#0A1F44] focus:outline-none focus:border-[#0057FF] bg-white"
           >
-            {["Full-time", "Part-time", "Contract", "Internship"].map((t) => (
-              <option key={t}>{t}</option>
+            {TYPE_OPTIONS.map((t) => (
+              <option key={t} value={t}>{t}</option>
             ))}
           </select>
         </div>
