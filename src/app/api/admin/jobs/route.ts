@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { sql, ensureJobsTable } from "@/lib/db";
 
 function isAuthed(req: NextRequest) {
@@ -49,6 +50,7 @@ export async function POST(req: NextRequest) {
       )
       RETURNING *
     `;
+    revalidatePath("/careers");
     return NextResponse.json({ job: rows[0] }, { status: 201 });
   } catch (err) {
     console.error("[POST /api/admin/jobs]", err);

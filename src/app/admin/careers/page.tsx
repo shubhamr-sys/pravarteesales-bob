@@ -298,13 +298,7 @@ export default function AdminCareersPage() {
   return (
     <div className="min-h-screen bg-[#F8F9FA]">
       {/* Header */}
-      <div className="bg-[#0A1F44] text-white px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/favicon-white.webp" alt="Pravartee Sales" className="h-8 w-auto object-contain" />
-          <div className="h-5 w-px bg-white/20" />
-          <h1 className="text-base font-bold tracking-wide">Careers Manager</h1>
-        </div>
+      <div className="bg-[#0A1F44] text-white px-6 py-4 flex items-center justify-end">
         <button
           onClick={handleLogout}
           className="inline-flex items-center gap-2 text-sm font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1.5 rounded-lg transition-all duration-200"

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { sql, ensureJobsTable } from "@/lib/db";
 
 function isAuthed(req: NextRequest) {
@@ -34,6 +35,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!rows.length) {
       return NextResponse.json({ error: "Not found." }, { status: 404 });
     }
+    revalidatePath("/careers");
     return NextResponse.json({ job: rows[0] });
   } catch (err) {
     console.error("[PATCH /api/admin/jobs/[id]]", err);
@@ -50,6 +52,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const { id } = await params;
     await ensureJobsTable();
     await sql`DELETE FROM job_openings WHERE id = ${id}`;
+    revalidatePath("/careers");
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("[DELETE /api/admin/jobs/[id]]", err);

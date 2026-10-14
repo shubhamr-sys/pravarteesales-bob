@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import CareersContent, { JobOpening } from "./CareersContent";
 import { sql, ensureJobsTable } from "@/lib/db";
 
@@ -63,6 +64,8 @@ const SEED_JOBS = [
 ];
 
 async function getOpenings(): Promise<JobOpening[]> {
+  // Wait for a real request so this page is never served from a stale static cache
+  await connection();
   try {
     await ensureJobsTable();
     const count = await sql`SELECT COUNT(*) AS c FROM job_openings`;
