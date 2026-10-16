@@ -6,6 +6,7 @@ import {
   MapPin, Clock, ChevronDown, ChevronUp, Upload, X, Loader2, CheckCircle2,
   Briefcase, Rocket, Users, Shield, TrendingUp, Heart,
 } from "lucide-react";
+import TurnstileWidget from "@/components/TurnstileWidget";
 
 /* ── types ───────────────────────────────────────────────────── */
 export interface JobOpening {
@@ -46,6 +47,8 @@ function ApplyModal({
   const [linkedin, setLinkedin] = useState("");
   const [coverLetter, setCoverLetter] = useState("");
   const [resume, setResume] = useState<File | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileReset, setTurnstileReset] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -60,6 +63,11 @@ function ApplyModal({
       return;
     }
 
+    if (!turnstileToken) {
+      setError("Please complete the CAPTCHA verification.");
+      return;
+    }
+
     setLoading(true);
     try {
       const body = new FormData();
@@ -71,6 +79,7 @@ function ApplyModal({
       body.append("job_title", jobTitle);
       if (jobId != null) body.append("job_id", String(jobId));
       body.append("resume", resume);
+      body.append("cf-turnstile-response", turnstileToken);
 
       const res = await fetch("/api/applications", { method: "POST", body });
       const data = await res.json().catch(() => ({}));
@@ -80,6 +89,8 @@ function ApplyModal({
       setDone(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
+      setTurnstileToken(null);
+      setTurnstileReset((n) => n + 1);
     } finally {
       setLoading(false);
     }
@@ -217,6 +228,13 @@ function ApplyModal({
               </div>
             </div>
 
+            <div>
+              <TurnstileWidget
+                onToken={setTurnstileToken}
+                resetKey={turnstileReset}
+              />
+            </div>
+
             {error && (
               <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
                 {error}
@@ -225,7 +243,7 @@ function ApplyModal({
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !turnstileToken}
               className="w-full inline-flex items-center justify-center gap-2 bg-[#0057FF] hover:bg-blue-600 disabled:opacity-60 text-white font-semibold px-5 py-3 rounded-xl text-sm transition-colors"
             >
               {loading ? <Loader2 size={16} className="animate-spin" /> : null}

@@ -1,6 +1,10 @@
 import { put } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
 import { sql, ensureApplicationsTable } from "@/lib/db";
+import {
+  TURNSTILE_ACTION_JOB_APPLICATION,
+  verifyTurnstileToken,
+} from "@/lib/turnstile";
 
 const MAX_RESUME_BYTES = 4 * 1024 * 1024; // 4 MB (under typical serverless body limits)
 const ALLOWED_MIME = new Set([
@@ -27,6 +31,17 @@ export async function POST(req: NextRequest) {
     const jobTitle = String(form.get("job_title") ?? "").trim();
     const jobIdRaw = form.get("job_id");
     const resume = form.get("resume");
+    const turnstileToken = String(
+      form.get("cf-turnstile-response") ?? form.get("turnstile_token") ?? ""
+    ).trim();
+
+    const captcha = await verifyTurnstileToken(turnstileToken, {
+      expectedAction: TURNSTILE_ACTION_JOB_APPLICATION,
+      remoteip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    });
+    if (!captcha.ok) {
+      return NextResponse.json({ error: captcha.error }, { status: 403 });
+    }
 
     if (!name || !email || !jobTitle) {
       return NextResponse.json(
