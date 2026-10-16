@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Plus, Trash2, ToggleLeft, ToggleRight, LogOut,
-  ChevronDown, ChevronUp, Pencil, X, Check, Loader2,
+  ChevronDown, ChevronUp, Pencil, X, Check, Loader2, ClipboardList,
 } from "lucide-react";
 
 /* ── types ───────────────────────────────────────────────────── */
@@ -357,19 +357,27 @@ export default function AdminCareersPage() {
 
       <div className="max-w-4xl mx-auto px-4 py-10">
         {/* Top bar */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
           <div>
             <h2 className="text-xl font-bold text-[#0A1F44]">Job Openings</h2>
             <p className="text-sm text-[#0A1F44]/50 mt-0.5">
               {jobs.filter((j) => j.active).length} active · {jobs.filter((j) => !j.active).length} disabled
             </p>
           </div>
-          <button
-            onClick={() => { setShowAdd(true); setEditingId(null); }}
-            className="inline-flex items-center gap-2 bg-[#0057FF] hover:bg-blue-600 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors shadow-lg shadow-blue-900/20"
-          >
-            <Plus size={16} /> Add Opening
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/admin/applications"
+              className="inline-flex items-center gap-2 bg-white hover:bg-[#F8F9FA] text-[#0A1F44] font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors border border-gray-200"
+            >
+              <ClipboardList size={16} /> View Applications
+            </Link>
+            <button
+              onClick={() => { setShowAdd(true); setEditingId(null); }}
+              className="inline-flex items-center gap-2 bg-[#0057FF] hover:bg-blue-600 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors shadow-lg shadow-blue-900/20"
+            >
+              <Plus size={16} /> Add Opening
+            </button>
+          </div>
         </div>
 
         {error && (

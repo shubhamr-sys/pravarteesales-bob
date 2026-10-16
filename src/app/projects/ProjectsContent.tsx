@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { MergedProject } from "@/lib/getProjects";
 
@@ -72,7 +71,6 @@ function solutionTitleOf(item: string): string {
   if (t.includes("ink") || t.includes("toner") || t.includes("cartridge"))        return "Printing Consumables Supply";
   if (t.includes("hard disk") || t.includes("ssd") || t.includes("hdd"))          return "Storage Device Supply";
   if (t.includes("chair") || t.includes("table") || t.includes("furniture") || t.includes("almirah") || t.includes("pedestal")) return "Office Furniture Supply";
-  if (t.includes("pen") || t.includes("stationery") || t.includes("planner"))     return "Office Stationery Supply";
   if (t.includes("chain saw") || t.includes("brush cutter") || t.includes("trimmer")) return "Grounds & Maintenance Equipment";
   if (t.includes("skipping") || t.includes("fitness"))                             return "Sports & Fitness Equipment";
   return "IT Infrastructure Supply";
@@ -84,7 +82,6 @@ function buildDescription(titles: string[], org: string): string {
   if (titles.length === 1) {
     return descriptionFor(titles[0], dept);
   }
-  // Multi-solution: list them out in one paragraph
   const listed = titles.slice(0, -1).join(", ") + " and " + titles[titles.length - 1];
   return `Executed a comprehensive IT procurement engagement for ${dept}, covering ${listed}. Each component was sourced, configured, and commissioned to meet government-grade quality and compliance standards.`;
 }
@@ -117,7 +114,6 @@ function descriptionFor(title: string, dept: string): string {
     "Printing Consumables Supply":           `Procured and delivered printing consumables including inks, toners, and cartridges to maintain uninterrupted printing operations at ${dept}.`,
     "Storage Device Supply":                 `Supplied solid-state and hard disk drives for data storage expansion, backup, and replacement across computing infrastructure at ${dept}.`,
     "Office Furniture Supply":               `Procured and delivered ergonomic office furniture including workstations, chairs, and storage units to improve the working environment at ${dept}.`,
-    "Office Stationery Supply":              `Supplied stationery items including pens, planners, and writing materials to support day-to-day administrative functions at ${dept}.`,
     "Grounds & Maintenance Equipment":       `Supplied professional-grade maintenance equipment including brush cutters and chain saws for upkeep of campuses and establishments under ${dept}.`,
     "Sports & Fitness Equipment":            `Procured sports and physical training equipment to support fitness and wellness programmes at ${dept}.`,
     "IT Infrastructure Supply":              `Delivered government-grade IT infrastructure and equipment to enhance operational efficiency, digital connectivity, and service delivery at ${dept}.`,
@@ -132,26 +128,6 @@ interface Props {
 }
 
 export default function ProjectsContent({ projects }: Props) {
-  const sectors = useMemo(() => {
-    const set = new Set(projects.map(sectorOf));
-    return ["All", ...Array.from(set).sort()];
-  }, [projects]);
-
-  const [activeSector, setActiveSector] = useState("All");
-
-  const filtered = useMemo(
-    () =>
-      activeSector === "All"
-        ? projects
-        : projects.filter((p) => sectorOf(p) === activeSector),
-    [projects, activeSector]
-  );
-
-  const uniqueOrgs = useMemo(
-    () => new Set(projects.map((p) => p.organisation || p.ministry)).size,
-    [projects]
-  );
-
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────── */}
@@ -177,15 +153,15 @@ export default function ProjectsContent({ projects }: Props) {
               Key Projects
             </h1>
             <p className="mt-5 text-white/60 text-lg max-w-2xl">
-              A track record of successful IT deployments across government
-              departments, defence, municipal bodies, and public enterprises.
+              Selected major IT deployments for defence, central agencies, and
+              public-sector organisations.
             </p>
 
             <div className="mt-10 flex flex-wrap gap-8">
               {[
-                { value: projects.length + "+", label: "Projects Delivered"  },
-                { value: uniqueOrgs + "+",       label: "Government Clients"  },
-                { value: String(sectors.length - 1), label: "Sectors Served" },
+                { value: "100+", label: "Projects Delivered" },
+                { value: "50+", label: "Government Clients" },
+                { value: String(projects.length), label: "Featured Here" },
               ].map((s) => (
                 <div key={s.label}>
                   <div className="text-3xl font-bold text-[#F5A623] font-[var(--font-plus-jakarta)]">
@@ -202,40 +178,15 @@ export default function ProjectsContent({ projects }: Props) {
       {/* ── Projects Grid ────────────────────────────────────── */}
       <section className="py-24 bg-[#F8F9FA]">
         <div className="max-w-7xl mx-auto px-6">
-
-          {/* Sector filter pills */}
-          <div className="flex flex-wrap gap-3 mb-12">
-            {sectors.map((s) => (
-              <button
-                key={s}
-                onClick={() => setActiveSector(s)}
-                className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
-                  s === activeSector
-                    ? "bg-[#0057FF] text-white border-[#0057FF]"
-                    : "bg-white text-[#0A1F44]/60 border-gray-200 hover:border-[#0057FF] hover:text-[#0057FF]"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-
-          {/* Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((project, i) => {
+            {projects.map((project, i) => {
               const sector = sectorOf(project);
               const sectorColor = SECTOR_COLORS[sector] ?? "bg-gray-100 text-gray-600";
               const dept = project.organisation || project.ministry;
-
-              // Derive unique solution titles from all items in this merged project
               const solutionTitles = Array.from(
                 new Set(project.items.map(solutionTitleOf))
               );
-
-              // Primary title: first (or only) solution
               const primaryTitle = solutionTitles[0] ?? "IT Infrastructure Supply";
-
-              // Verbose description
               const description = buildDescription(solutionTitles, dept);
 
               return (
@@ -244,10 +195,9 @@ export default function ProjectsContent({ projects }: Props) {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: (i % 9) * 0.06 }}
+                  transition={{ duration: 0.5, delay: i * 0.06 }}
                   className="bg-white rounded-2xl p-7 border border-gray-100 hover:border-[#0057FF]/30 hover:shadow-xl hover:shadow-blue-50 transition-all duration-300 flex flex-col"
                 >
-                  {/* Sector badge + month */}
                   <div className="flex items-start justify-between mb-5">
                     <span className={`text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full ${sectorColor}`}>
                       {sector}
@@ -257,12 +207,10 @@ export default function ProjectsContent({ projects }: Props) {
                     </span>
                   </div>
 
-                  {/* Primary solution title */}
                   <h3 className="font-bold text-[#0A1F44] text-lg mb-3 font-[var(--font-plus-jakarta)] leading-snug">
                     {primaryTitle}
                   </h3>
 
-                  {/* Additional solution tags (if merged) */}
                   {solutionTitles.length > 1 && (
                     <div className="flex flex-wrap gap-1.5 mb-3">
                       {solutionTitles.slice(1).map((t) => (
@@ -276,12 +224,10 @@ export default function ProjectsContent({ projects }: Props) {
                     </div>
                   )}
 
-                  {/* Description */}
                   <p className="text-sm text-[#0A1F44]/60 leading-relaxed mb-5 flex-1">
                     {description}
                   </p>
 
-                  {/* Department */}
                   <div className="pt-4 border-t border-gray-100">
                     <p className="text-xs text-[#0057FF] font-semibold uppercase tracking-wide">
                       {dept}
@@ -291,12 +237,6 @@ export default function ProjectsContent({ projects }: Props) {
               );
             })}
           </div>
-
-          {filtered.length === 0 && (
-            <p className="text-center text-[#0A1F44]/40 py-16">
-              No projects found for this sector.
-            </p>
-          )}
         </div>
       </section>
     </>

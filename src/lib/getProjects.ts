@@ -100,11 +100,25 @@ function parseRows(lines: string[], hasBrandFirst: boolean): RawOrder[] {
   return rows;
 }
 
+/** Office stationery — excluded from the public projects page */
+function isStationeryItem(item: string): boolean {
+  const t = item.toLowerCase();
+  if (t.includes("stationery") || t.includes("stationary")) return true;
+  if (t.includes("planner")) return true;
+  if (t.includes("gel pen") || t.includes("ball pen") || t.includes("fountain pen")) return true;
+  if (/\bpens?\b/.test(t) && !t.includes("dispenser") && !t.includes("expense")) return true;
+  if (t.includes("pencil") || t.includes("stapler") || t.includes("paper clip")) return true;
+  if (t.includes("writing material") || (t.includes("notebook") && t.includes("pages"))) return true;
+  return false;
+}
+
 /* ── merge: group by (organisation || ministry) + month-year ─── */
 function mergeOrders(rows: RawOrder[]): MergedProject[] {
   const map = new Map<string, MergedProject>();
 
   for (const row of rows) {
+    if (isStationeryItem(row.item)) continue;
+
     const org = row.organisation || row.ministry;
     const my  = toMonthYear(row.orderDate);
     const key = `${org}__${my}`;
@@ -136,7 +150,51 @@ function mergeOrders(rows: RawOrder[]): MergedProject[] {
     if (row.status) entry.status = row.status;
   }
 
-  return Array.from(map.values());
+  return Array.from(map.values()).filter((p) => p.items.length > 0);
+}
+
+/* ── major project selection (highlight reel for /projects) ─── */
+const PRESTIGE_ORGS =
+  /indian army|air force|nia|ncrb|itbp|cbdt|cbec|pmo|ugc|university grants|epfo|canara bank|botanical survey|inland waterways|sai|sports authority/i;
+
+const MAJOR_IT =
+  /laptop|notebook|desktop|workstation|server|all[\s-]?in[\s-]?one|\baio\b|network|switch|router|firewall|cyber|security|antivirus|software|office suite|licence|license|scanner|multifunction|printer|projector|display|monitor|storage|nas|san|rack|camera|surveillance|conferenc|smartphone|mobile device/i;
+
+const NON_IT =
+  /furniture|chair|table|almirah|pedestal|water dispenser|air conditioner|split air|chain saw|brush cutter|skipping|fitness|rope/i;
+
+function projectScore(p: MergedProject): number {
+  const org = `${p.organisation} ${p.ministry}`;
+  const items = p.items.join(" ");
+  let score = p.items.length * 2;
+  if (PRESTIGE_ORGS.test(org)) score += 40;
+  if (MAJOR_IT.test(items)) score += 30;
+  if (NON_IT.test(items) && !MAJOR_IT.test(items)) score -= 50;
+  return score;
+}
+
+/** Pick a small set of high-impact IT projects across different clients */
+export function selectMajorProjects(
+  projects: MergedProject[],
+  limit = 5
+): MergedProject[] {
+  const ranked = [...projects].sort((a, b) => projectScore(b) - projectScore(a));
+  const picked: MergedProject[] = [];
+  const seenOrgs = new Set<string>();
+
+  for (const p of ranked) {
+    if (picked.length >= limit) break;
+    if (projectScore(p) < 20) continue;
+    const orgKey = (p.organisation || p.ministry)
+      .toLowerCase()
+      .replace(/^:\s*/, "")
+      .trim();
+    if (seenOrgs.has(orgKey)) continue;
+    seenOrgs.add(orgKey);
+    picked.push(p);
+  }
+
+  return picked;
 }
 
 /* ── public entry point ──────────────────────────────────────── */

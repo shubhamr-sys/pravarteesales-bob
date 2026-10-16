@@ -1,5 +1,5 @@
 ﻿import type { Metadata } from "next";
-import { getProjects } from "@/lib/getProjects";
+import { getProjects, selectMajorProjects } from "@/lib/getProjects";
 import ProjectsContent from "./ProjectsContent";
 
 export const metadata: Metadata = {
@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProjectsPage() {
-  const projects = await getProjects();
+  const all = await getProjects();
+  const projects = selectMajorProjects(all, 5);
   return <ProjectsContent projects={projects} />;
 }
