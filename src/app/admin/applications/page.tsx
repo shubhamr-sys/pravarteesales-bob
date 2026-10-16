@@ -182,20 +182,16 @@ export default function AdminApplicationsPage() {
   }, [fetchApps]);
 
   const handleLogout = async () => {
-    await fetch("/api/admin/login", { method: "DELETE" });
-    router.push("/admin/login");
+    try {
+      await fetch("/api/admin/login", { method: "DELETE", credentials: "same-origin" });
+    } finally {
+      router.replace("/admin/login");
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#F8F9FA]">
-      <div className="bg-[#0A1F44] text-white px-6 py-4 flex items-center justify-between gap-4">
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="/admin/careers" className="text-white/60 hover:text-white transition-colors">
-            Job Openings
-          </Link>
-          <span className="text-white/30">|</span>
-          <span className="font-semibold text-white">Applications</span>
-        </nav>
+      <div className="bg-[#0A1F44] text-white px-6 py-4 flex items-center justify-end gap-4">
         <button
           onClick={handleLogout}
           className="inline-flex items-center gap-2 text-sm font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1.5 rounded-lg transition-all duration-200"
@@ -205,12 +201,20 @@ export default function AdminApplicationsPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-10">
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-[#0A1F44]">Job Applications</h2>
-          <p className="text-sm text-[#0A1F44]/50 mt-0.5">
-            {apps.length} application{apps.length === 1 ? "" : "s"} · {groups.length} job
-            {groups.length === 1 ? "" : "s"}
-          </p>
+        <div className="mb-6 flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <h2 className="text-xl font-bold text-[#0A1F44]">Job Applications</h2>
+            <p className="text-sm text-[#0A1F44]/50 mt-0.5">
+              {apps.length} application{apps.length === 1 ? "" : "s"} · {groups.length} job
+              {groups.length === 1 ? "" : "s"}
+            </p>
+          </div>
+          <Link
+            href="/admin/careers"
+            className="inline-flex items-center gap-2 bg-white hover:bg-[#F8F9FA] text-[#0A1F44] font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors border border-gray-200"
+          >
+            Back to Job Openings
+          </Link>
         </div>
 
         {error && (

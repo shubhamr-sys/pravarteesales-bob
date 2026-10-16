@@ -20,11 +20,14 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE() {
   const res = NextResponse.json({ success: true });
+  // Must match the attributes used when setting the cookie (esp. `secure` in production),
+  // otherwise browsers keep the existing session cookie.
   res.cookies.set("admin_session", "", {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
     maxAge: 0,
+    secure: process.env.NODE_ENV === "production",
   });
   return res;
 }

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
@@ -14,6 +15,8 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin") ?? false;
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -56,13 +59,15 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* CTA */}
-        <Link
-          href="/contact"
-          className="hidden md:inline-flex items-center bg-[#0057FF] hover:bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors duration-200"
-        >
-          Get in Touch
-        </Link>
+        {/* CTA — hidden on admin pages */}
+        {!isAdmin && (
+          <Link
+            href="/contact"
+            className="hidden md:inline-flex items-center bg-[#0057FF] hover:bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors duration-200"
+          >
+            Get in Touch
+          </Link>
+        )}
 
         {/* Mobile Toggle */}
         <button
@@ -89,15 +94,17 @@ export default function Navbar() {
                 </Link>
               </li>
             ))}
-            <li>
-              <Link
-                href="/contact"
-                className="inline-flex items-center bg-[#0057FF] text-white text-sm font-semibold px-5 py-2.5 rounded-lg mt-2"
-                onClick={() => setOpen(false)}
-              >
-                Get in Touch
-              </Link>
-            </li>
+            {!isAdmin && (
+              <li>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center bg-[#0057FF] text-white text-sm font-semibold px-5 py-2.5 rounded-lg mt-2"
+                  onClick={() => setOpen(false)}
+                >
+                  Get in Touch
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       )}
