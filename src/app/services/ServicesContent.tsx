@@ -20,7 +20,7 @@ import dell from "@/assets/technology-partner/Dell_logo_2016.svg";
 import delta from "@/assets/technology-partner/delta-displays-logo.svg";
 import epson from "@/assets/technology-partner/epson-hd-logo.png";
 import fortinet from "@/assets/technology-partner/Fortinet_logo.svg";
-import hcl from "@/assets/technology-partner/HCL Tech.jpg";
+import hcl from "@/assets/technology-partner/HCL-logo.png";
 import hpe from "@/assets/technology-partner/Hewlett_Packard_Enterprise_logo.svg";
 import hp from "@/assets/technology-partner/hp-logo-png.png";
 import ibm from "@/assets/technology-partner/ibm-striped_logo.avif";
