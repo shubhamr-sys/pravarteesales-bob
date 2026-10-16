@@ -4,9 +4,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Plus, Trash2, ToggleLeft, ToggleRight, LogOut,
+  Plus, Trash2, ToggleLeft, ToggleRight,
   ChevronDown, ChevronUp, Pencil, X, Check, Loader2, ClipboardList,
 } from "lucide-react";
+import AdminHeader from "@/components/AdminHeader";
 
 /* ── types ───────────────────────────────────────────────────── */
 interface Job {
@@ -341,15 +342,7 @@ export default function AdminCareersPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F9FA]">
-      {/* Header */}
-      <div className="bg-[#0A1F44] text-white px-6 py-4 flex items-center justify-end gap-4">
-        <button
-          onClick={handleLogout}
-          className="inline-flex items-center gap-2 text-sm font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1.5 rounded-lg transition-all duration-200"
-        >
-          <LogOut size={15} /> Logout
-        </button>
-      </div>
+      <AdminHeader onLogout={handleLogout} />
 
       <div className="max-w-4xl mx-auto px-4 py-10">
         {/* Top bar */}
