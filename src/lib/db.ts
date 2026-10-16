@@ -52,3 +52,42 @@ export async function ensureJobsTable() {
     )
   `;
 }
+
+export async function ensureApplicationsTable() {
+  const client = getClient();
+  await client`
+    CREATE TABLE IF NOT EXISTS job_applications (
+      id               SERIAL PRIMARY KEY,
+      job_id           INTEGER,
+      job_title        TEXT        NOT NULL,
+      name             TEXT        NOT NULL,
+      email            TEXT        NOT NULL,
+      phone            TEXT        NOT NULL DEFAULT '',
+      linkedin         TEXT        NOT NULL DEFAULT '',
+      cover_letter     TEXT        NOT NULL DEFAULT '',
+      resume_filename  TEXT        NOT NULL,
+      resume_mime      TEXT        NOT NULL,
+      resume_url       TEXT        NOT NULL DEFAULT '',
+      resume_pathname  TEXT        NOT NULL DEFAULT '',
+      created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  // Migrate older installs that stored resumes as base64 in Postgres
+  await client`
+    ALTER TABLE job_applications
+    ADD COLUMN IF NOT EXISTS resume_url TEXT NOT NULL DEFAULT ''
+  `;
+  await client`
+    ALTER TABLE job_applications
+    ADD COLUMN IF NOT EXISTS resume_pathname TEXT NOT NULL DEFAULT ''
+  `;
+  try {
+    await client`
+      ALTER TABLE job_applications
+      ALTER COLUMN resume_base64 DROP NOT NULL
+    `;
+  } catch {
+    // Column may not exist on fresh installs
+  }
+}

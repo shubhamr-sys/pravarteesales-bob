@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Plus, Trash2, ToggleLeft, ToggleRight, LogOut,
   ChevronDown, ChevronUp, Pencil, X, Check, Loader2,
@@ -338,7 +339,14 @@ export default function AdminCareersPage() {
   return (
     <div className="min-h-screen bg-[#F8F9FA]">
       {/* Header */}
-      <div className="bg-[#0A1F44] text-white px-6 py-4 flex items-center justify-end">
+      <div className="bg-[#0A1F44] text-white px-6 py-4 flex items-center justify-between gap-4">
+        <nav className="flex items-center gap-4 text-sm">
+          <span className="font-semibold text-white">Job Openings</span>
+          <span className="text-white/30">|</span>
+          <Link href="/admin/applications" className="text-white/60 hover:text-white transition-colors">
+            Applications
+          </Link>
+        </nav>
         <button
           onClick={handleLogout}
           className="inline-flex items-center gap-2 text-sm font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1.5 rounded-lg transition-all duration-200"

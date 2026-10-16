@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  MapPin, Clock, ChevronDown, ChevronUp,
+  MapPin, Clock, ChevronDown, ChevronUp, Upload, X, Loader2, CheckCircle2,
   Briefcase, Rocket, Users, Shield, TrendingUp, Heart,
 } from "lucide-react";
 
@@ -30,8 +30,224 @@ const perks = [
   { icon: Briefcase,  title: "Career Development",     description: "Access to OEM training programmes, certifications, and industry events to keep your skills sharp." },
 ];
 
+/* ── apply modal ─────────────────────────────────────────────── */
+function ApplyModal({
+  jobTitle,
+  jobId,
+  onClose,
+}: {
+  jobTitle: string;
+  jobId: number | null;
+  onClose: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+  const [coverLetter, setCoverLetter] = useState("");
+  const [resume, setResume] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!resume) {
+      setError("Please upload your resume (PDF or Word).");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const body = new FormData();
+      body.append("name", name);
+      body.append("email", email);
+      body.append("phone", phone);
+      body.append("linkedin", linkedin);
+      body.append("cover_letter", coverLetter);
+      body.append("job_title", jobTitle);
+      if (jobId != null) body.append("job_id", String(jobId));
+      body.append("resume", resume);
+
+      const res = await fetch("/api/applications", { method: "POST", body });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error ?? "Could not submit application.");
+      }
+      setDone(true);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <button
+        type="button"
+        aria-label="Close"
+        className="absolute inset-0 bg-[#0A1F44]/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 24 }}
+        className="relative w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto"
+      >
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-start justify-between gap-3 z-10">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#0057FF]">Apply</p>
+            <h3 className="text-lg font-bold text-[#0A1F44] font-[var(--font-plus-jakarta)] leading-snug">
+              {jobTitle}
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-9 h-9 rounded-lg hover:bg-[#F8F9FA] flex items-center justify-center text-[#0A1F44]/50"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {done ? (
+          <div className="px-6 py-12 text-center">
+            <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 size={28} className="text-green-600" />
+            </div>
+            <h4 className="text-xl font-bold text-[#0A1F44]">Application submitted</h4>
+            <p className="mt-2 text-sm text-[#0A1F44]/60 max-w-sm mx-auto">
+              Thank you. Our team will review your profile and get in touch if there is a match.
+            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="mt-8 inline-flex items-center bg-[#0057FF] hover:bg-blue-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A1F44]/50 mb-2">
+                  Full name *
+                </label>
+                <input
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-[#0A1F44] focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10"
+                  placeholder="Your full name"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A1F44]/50 mb-2">
+                  Email *
+                </label>
+                <input
+                  required
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-[#0A1F44] focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10"
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A1F44]/50 mb-2">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-[#0A1F44] focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10"
+                  placeholder="+91 …"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A1F44]/50 mb-2">
+                  LinkedIn (optional)
+                </label>
+                <input
+                  value={linkedin}
+                  onChange={(e) => setLinkedin(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-[#0A1F44] focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10"
+                  placeholder="https://linkedin.com/in/…"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A1F44]/50 mb-2">
+                  Cover note (optional)
+                </label>
+                <textarea
+                  value={coverLetter}
+                  onChange={(e) => setCoverLetter(e.target.value)}
+                  rows={3}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-[#0A1F44] focus:outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10 resize-none"
+                  placeholder="Briefly tell us why you are a good fit…"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#0A1F44]/50 mb-2">
+                  Resume * (PDF or Word, max 4 MB)
+                </label>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  className="hidden"
+                  onChange={(e) => setResume(e.target.files?.[0] ?? null)}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  className="w-full border border-dashed border-gray-300 hover:border-[#0057FF] rounded-xl px-4 py-4 text-sm text-[#0A1F44]/70 hover:text-[#0057FF] transition-colors flex items-center justify-center gap-2 bg-[#F8F9FA]"
+                >
+                  <Upload size={16} />
+                  {resume ? resume.name : "Choose resume file"}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full inline-flex items-center justify-center gap-2 bg-[#0057FF] hover:bg-blue-600 disabled:opacity-60 text-white font-semibold px-5 py-3 rounded-xl text-sm transition-colors"
+            >
+              {loading ? <Loader2 size={16} className="animate-spin" /> : null}
+              {loading ? "Submitting…" : "Submit Application"}
+            </button>
+          </form>
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
 /* ── role card ───────────────────────────────────────────────── */
-function RoleCard({ role, index }: { role: JobOpening; index: number }) {
+function RoleCard({
+  role,
+  index,
+  onApply,
+}: {
+  role: JobOpening;
+  index: number;
+  onApply: (role: JobOpening) => void;
+}) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -90,7 +306,6 @@ function RoleCard({ role, index }: { role: JobOpening; index: number }) {
             className="overflow-hidden"
           >
             <div className="px-7 pb-7 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-100 pt-6">
-              {/* Responsibilities */}
               {role.responsibilities.length > 0 && (
                 <div>
                   <h4 className="font-semibold text-[#0A1F44] text-sm mb-3 uppercase tracking-wide">
@@ -106,7 +321,6 @@ function RoleCard({ role, index }: { role: JobOpening; index: number }) {
                   </ul>
                 </div>
               )}
-              {/* Requirements */}
               {role.requirements.length > 0 && (
                 <div>
                   <h4 className="font-semibold text-[#0A1F44] text-sm mb-3 uppercase tracking-wide">
@@ -123,16 +337,16 @@ function RoleCard({ role, index }: { role: JobOpening; index: number }) {
                 </div>
               )}
             </div>
-            {/* Apply CTA */}
             <div className="px-7 pb-7">
-              <a
-                href={`mailto:hr@pravarteesales.com?subject=Application: ${encodeURIComponent(role.title)}`}
+              <button
+                type="button"
+                onClick={() => onApply(role)}
                 className="inline-flex items-center gap-2 bg-[#0057FF] hover:bg-blue-600 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors duration-200"
               >
                 Apply for this Role
-              </a>
+              </button>
               <p className="mt-2 text-xs text-[#0A1F44]/40">
-                Send your CV to hr@pravarteesales.com with the role title in the subject line.
+                Upload your resume and details — we will store your application securely.
               </p>
             </div>
           </motion.div>
@@ -144,6 +358,8 @@ function RoleCard({ role, index }: { role: JobOpening; index: number }) {
 
 /* ── page ────────────────────────────────────────────────────── */
 export default function CareersContent({ openings }: { openings: JobOpening[] }) {
+  const [applyTarget, setApplyTarget] = useState<{ title: string; id: number | null } | null>(null);
+
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────── */}
@@ -262,7 +478,12 @@ export default function CareersContent({ openings }: { openings: JobOpening[] })
           {openings.length > 0 ? (
             <div className="space-y-4">
               {openings.map((role, i) => (
-                <RoleCard key={role.id} role={role} index={i} />
+                <RoleCard
+                  key={role.id}
+                  role={role}
+                  index={i}
+                  onApply={(r) => setApplyTarget({ title: r.title, id: r.id })}
+                />
               ))}
             </div>
           ) : (
@@ -293,20 +514,30 @@ export default function CareersContent({ openings }: { openings: JobOpening[] })
               Don&apos;t See the Right Role?
             </h2>
             <p className="mt-4 text-white/60 text-lg max-w-xl mx-auto">
-              We are always open to meeting talented people. Send us your CV and
+              We are always open to meeting talented people. Share your CV and
               tell us how you can contribute — we will keep it on file for future
               opportunities.
             </p>
-            <a
-              href="mailto:hr@pravarteesales.com?subject=General Application - Pravartee Sales"
+            <button
+              type="button"
+              onClick={() => setApplyTarget({ title: "General Application", id: null })}
               className="mt-8 inline-flex items-center gap-2 bg-[#F5A623] hover:bg-yellow-500 text-[#0A1F44] font-bold px-8 py-4 rounded-xl transition-colors duration-200 text-sm"
             >
               Send a General Application
-            </a>
-            <p className="mt-4 text-white/30 text-xs">hr@pravarteesales.com</p>
+            </button>
           </motion.div>
         </div>
       </section>
+
+      <AnimatePresence>
+        {applyTarget && (
+          <ApplyModal
+            jobTitle={applyTarget.title}
+            jobId={applyTarget.id}
+            onClose={() => setApplyTarget(null)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }
