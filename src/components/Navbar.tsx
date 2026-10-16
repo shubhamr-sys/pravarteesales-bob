@@ -26,6 +26,9 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
+  // Admin pages use their own header (Logout). Site nav would overlay and block clicks.
+  if (isAdmin) return null;
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -59,15 +62,12 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* CTA — hidden on admin pages */}
-        {!isAdmin && (
-          <Link
-            href="/contact"
-            className="hidden md:inline-flex items-center bg-[#0057FF] hover:bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors duration-200"
-          >
-            Get in Touch
-          </Link>
-        )}
+        <Link
+          href="/contact"
+          className="hidden md:inline-flex items-center bg-[#0057FF] hover:bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors duration-200"
+        >
+          Get in Touch
+        </Link>
 
         {/* Mobile Toggle */}
         <button
@@ -94,17 +94,15 @@ export default function Navbar() {
                 </Link>
               </li>
             ))}
-            {!isAdmin && (
-              <li>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center bg-[#0057FF] text-white text-sm font-semibold px-5 py-2.5 rounded-lg mt-2"
-                  onClick={() => setOpen(false)}
-                >
-                  Get in Touch
-                </Link>
-              </li>
-            )}
+            <li>
+              <Link
+                href="/contact"
+                className="inline-flex items-center bg-[#0057FF] text-white text-sm font-semibold px-5 py-2.5 rounded-lg mt-2"
+                onClick={() => setOpen(false)}
+              >
+                Get in Touch
+              </Link>
+            </li>
           </ul>
         </div>
       )}
