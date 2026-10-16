@@ -23,11 +23,12 @@ declare global {
       remove: (widgetId?: string) => void;
       ready?: (callback: () => void) => void;
     };
-    __onTurnstileLoad?: () => void;
   }
 }
 
 const SCRIPT_ID = "cf-turnstile-script";
+const SCRIPT_SRC =
+  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 /** Public sitekey — safe in client bundles; secret stays server-only */
 const FALLBACK_SITE_KEY = "0x4AAAAAAFYNZljRVSyMb9OG";
 
@@ -47,51 +48,61 @@ function explainError(code?: string): string {
   return "CAPTCHA could not load. Check domain allowlist in Cloudflare Turnstile.";
 }
 
-function loadTurnstileScript(): Promise<void> {
+function waitForTurnstile(timeoutMs = 15000): Promise<NonNullable<Window["turnstile"]>> {
+  return new Promise((resolve, reject) => {
+    if (typeof window === "undefined") {
+      reject(new Error("No window"));
+      return;
+    }
+    if (window.turnstile) {
+      resolve(window.turnstile);
+      return;
+    }
+
+    const start = Date.now();
+    const tick = () => {
+      if (window.turnstile) {
+        resolve(window.turnstile);
+        return;
+      }
+      if (Date.now() - start >= timeoutMs) {
+        reject(new Error("Turnstile API timed out"));
+        return;
+      }
+      window.setTimeout(tick, 50);
+    };
+    tick();
+  });
+}
+
+function ensureTurnstileScript(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   if (window.turnstile) return Promise.resolve();
 
   const existing = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
   if (existing) {
-    return new Promise((resolve, reject) => {
-      if (window.turnstile) {
-        resolve();
-        return;
-      }
-      existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(new Error("Failed to load Turnstile")), {
-        once: true,
-      });
-      const start = Date.now();
-      const poll = window.setInterval(() => {
-        if (window.turnstile) {
-          window.clearInterval(poll);
-          resolve();
-        } else if (Date.now() - start > 8000) {
-          window.clearInterval(poll);
-          reject(new Error("Turnstile timed out"));
-        }
-      }, 50);
-    });
+    // Script tag already present (including after React Strict Mode remount)
+    return waitForTurnstile().then(() => undefined);
   }
 
   return new Promise((resolve, reject) => {
-    window.__onTurnstileLoad = () => resolve();
     const script = document.createElement("script");
     script.id = SCRIPT_ID;
-    script.src =
-      "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=__onTurnstileLoad";
+    script.src = SCRIPT_SRC;
     script.async = true;
-    script.defer = true;
-    script.onerror = () => reject(new Error("Failed to load Turnstile"));
+    script.onload = () => {
+      waitForTurnstile()
+        .then(() => resolve())
+        .catch(reject);
+    };
+    script.onerror = () => reject(new Error("Failed to load Turnstile script"));
     document.head.appendChild(script);
   });
 }
 
-function whenTurnstileReady(cb: () => void) {
-  if (!window.turnstile) return;
-  if (typeof window.turnstile.ready === "function") {
-    window.turnstile.ready(cb);
+function whenTurnstileReady(api: NonNullable<Window["turnstile"]>, cb: () => void) {
+  if (typeof api.ready === "function") {
+    api.ready(cb);
   } else {
     cb();
   }
@@ -118,8 +129,6 @@ export default function TurnstileWidget({
   const sitekey = getSiteKey();
 
   useEffect(() => {
-    if (!containerRef.current) return;
-
     let cancelled = false;
     setStatus("loading");
     setErrorMessage(null);
@@ -127,46 +136,59 @@ export default function TurnstileWidget({
 
     const mount = async () => {
       try {
-        await loadTurnstileScript();
-        if (cancelled || !containerRef.current || !window.turnstile) {
-          if (!cancelled) {
-            setStatus("error");
-            setErrorMessage("CAPTCHA failed to load. Please refresh and try again.");
-          }
+        await ensureTurnstileScript();
+        if (cancelled) return;
+
+        const api = window.turnstile;
+        const el = containerRef.current;
+        if (!api || !el) {
+          setStatus("error");
+          setErrorMessage("CAPTCHA failed to load. Please refresh and try again.");
           return;
         }
 
         if (widgetIdRef.current) {
-          window.turnstile.remove(widgetIdRef.current);
+          try {
+            api.remove(widgetIdRef.current);
+          } catch {
+            // ignore
+          }
           widgetIdRef.current = null;
         }
 
-        containerRef.current.innerHTML = "";
+        el.innerHTML = "";
 
-        whenTurnstileReady(() => {
+        whenTurnstileReady(api, () => {
           if (cancelled || !containerRef.current || !window.turnstile) return;
-          widgetIdRef.current = window.turnstile.render(containerRef.current, {
-            sitekey,
-            action,
-            theme: "light",
-            size: "normal",
-            appearance: "always",
-            callback: (token) => {
-              setStatus("ready");
-              setErrorMessage(null);
-              onTokenRef.current(token);
-            },
-            "expired-callback": () => onTokenRef.current(null),
-            "error-callback": (errorCode) => {
-              onTokenRef.current(null);
-              setStatus("error");
-              setErrorMessage(explainError(errorCode));
-              return true;
-            },
-          });
-          setStatus("ready");
+          try {
+            widgetIdRef.current = window.turnstile.render(containerRef.current, {
+              sitekey,
+              action,
+              theme: "light",
+              size: "normal",
+              appearance: "always",
+              callback: (token) => {
+                setStatus("ready");
+                setErrorMessage(null);
+                onTokenRef.current(token);
+              },
+              "expired-callback": () => onTokenRef.current(null),
+              "error-callback": (errorCode) => {
+                onTokenRef.current(null);
+                setStatus("error");
+                setErrorMessage(explainError(errorCode));
+                return true;
+              },
+            });
+            setStatus("ready");
+          } catch (err) {
+            console.error("[Turnstile] render failed", err);
+            setStatus("error");
+            setErrorMessage("CAPTCHA failed to render. Please refresh and try again.");
+          }
         });
-      } catch {
+      } catch (err) {
+        console.error("[Turnstile] load failed", err);
         if (!cancelled) {
           onTokenRef.current(null);
           setStatus("error");
@@ -175,12 +197,20 @@ export default function TurnstileWidget({
       }
     };
 
-    mount();
+    // Defer one frame so the container ref is attached after paint
+    const raf = window.requestAnimationFrame(() => {
+      void mount();
+    });
 
     return () => {
       cancelled = true;
+      window.cancelAnimationFrame(raf);
       if (widgetIdRef.current && window.turnstile) {
-        window.turnstile.remove(widgetIdRef.current);
+        try {
+          window.turnstile.remove(widgetIdRef.current);
+        } catch {
+          // ignore
+        }
         widgetIdRef.current = null;
       }
     };
