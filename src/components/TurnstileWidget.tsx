@@ -13,9 +13,10 @@ declare global {
           action?: string;
           theme?: "light" | "dark" | "auto";
           size?: "normal" | "flexible" | "compact";
+          appearance?: "always" | "execute" | "interaction-only";
           callback?: (token: string) => void;
           "expired-callback"?: () => void;
-          "error-callback"?: (errorCode?: string) => void;
+          "error-callback"?: (errorCode?: string) => void | boolean;
         }
       ) => string;
       reset: (widgetId?: string) => void;
@@ -34,6 +35,18 @@ function getSiteKey() {
   return process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || FALLBACK_SITE_KEY;
 }
 
+function explainError(code?: string): string {
+  const c = String(code ?? "");
+  if (c.startsWith("110200") || c === "110200") {
+    return "Domain not authorized. In Cloudflare Turnstile → your widget → Hostname Management, add pravarteesales.com (and localhost for local testing).";
+  }
+  if (c.startsWith("110100") || c.startsWith("110110") || c.startsWith("400020")) {
+    return "Invalid Turnstile site key. Check NEXT_PUBLIC_TURNSTILE_SITE_KEY in Vercel.";
+  }
+  if (c) return `CAPTCHA error (${c}). Check Cloudflare Turnstile widget settings.`;
+  return "CAPTCHA could not load. Check domain allowlist in Cloudflare Turnstile.";
+}
+
 function loadTurnstileScript(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   if (window.turnstile) return Promise.resolve();
@@ -49,7 +62,6 @@ function loadTurnstileScript(): Promise<void> {
       existing.addEventListener("error", () => reject(new Error("Failed to load Turnstile")), {
         once: true,
       });
-      // Already loaded but API not yet attached
       const start = Date.now();
       const poll = window.setInterval(() => {
         if (window.turnstile) {
@@ -137,18 +149,19 @@ export default function TurnstileWidget({
             sitekey,
             action,
             theme: "light",
-            size: "flexible",
+            size: "normal",
+            appearance: "always",
             callback: (token) => {
               setStatus("ready");
+              setErrorMessage(null);
               onTokenRef.current(token);
             },
             "expired-callback": () => onTokenRef.current(null),
-            "error-callback": () => {
+            "error-callback": (errorCode) => {
               onTokenRef.current(null);
               setStatus("error");
-              setErrorMessage(
-                "CAPTCHA could not verify this domain. Add pravarteesales.com in Cloudflare Turnstile widget domains."
-              );
+              setErrorMessage(explainError(errorCode));
+              return true;
             },
           });
           setStatus("ready");
@@ -174,13 +187,16 @@ export default function TurnstileWidget({
   }, [sitekey, resetKey, action]);
 
   return (
-    <div className="space-y-2">
-      <div ref={containerRef} className="min-h-[65px] flex items-center" />
+    <div className="space-y-2 rounded-xl border border-gray-200 bg-[#F8F9FA] p-4">
+      <p className="text-xs font-semibold uppercase tracking-wider text-[#0A1F44]/50">
+        Security check *
+      </p>
+      <div ref={containerRef} className="min-h-[65px] w-full overflow-visible" />
       {status === "loading" && (
-        <p className="text-xs text-[#0A1F44]/45">Loading security check…</p>
+        <p className="text-xs text-[#0A1F44]/45">Loading Cloudflare CAPTCHA…</p>
       )}
       {errorMessage && (
-        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2 leading-relaxed">
           {errorMessage}
         </p>
       )}
